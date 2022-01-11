@@ -1,0 +1,51 @@
+library(Matrix)
+
+# Set working directory and read in the four datasets
+setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
+
+# Load in the data
+load(file="data/AllData.Rdata")
+
+# Create a function to get the numbers of a certain country origin
+constructCountryNameList <- function(countrycode){
+  counts <- cntrmat[, which(countrynames == countrycode)]
+  props <- cntrmatprop[, which(countrynames == countrycode)]
+  names(counts) <- names(props) <- surnames
+  sortorder <- order(props, decreasing=TRUE)
+  return(data.frame(
+    fbcount = counts[sortorder],
+    fbprop = props[sortorder],
+    ntvcount = ntvmat[sortorder,1]
+  ))
+}
+
+fb_estimates <- data.frame(
+  fb_among_exclusive_surnames = rep(NA, N_countrynames),
+  exclusive_surnames = rep(NA, N_countrynames),
+  count_with_exclusive_surnames = rep(NA, N_countrynames),
+  row.names = countrynames
+)
+
+
+for (i in 1:N_countrynames){
+  tmp <- constructCountryNameList(countrynames[i])
+  tmp2 <- tmp$fbprop == 1
+  tmp3 <- tmp[tmp2, ]
+  total <- tmp3$fbcount + tmp3$ntvcount
+  tmp4 <- tmp3$fbcount / total
+  fb_estimates$fb_among_exclusive_surnames[i] <- sum(tmp4*total) / sum(total)
+  fb_estimates$exclusive_surnames[i] <- length(tmp4)
+  fb_estimates$count_with_exclusive_surnames[i] <- sum(total)
+  print(fb_estimates[i, ])
+}
+
+
+
+tmp <- fb_estimates
+tmp[,1] <- round(100*tmp[, 1], 1)
+tmp <- tmp[order(tmp[, 3], decreasing=TRUE), ]
+write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames.csv")
+
+#plot(total,tmp4,pch=16,col=rgb(0,0,0,0.2),cex=sqrt(total/100),
+#     xlab="Total with Surname",ylab="Fraction Foreign Born with Surname",
+#     main="Exclusive Surnames")
