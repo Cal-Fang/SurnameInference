@@ -8,18 +8,17 @@ load(file="data/AllData.Rdata")
 
 # Create a function to get the numbers of a certain country origin
 constructCountryNameList <- function(countrycode){
-  counts <- cntrmat[which(countrynames == countrycode), ]
-  props <- cntrmatprop[which(countrynames == countrycode), ]
+  counts <- cntrmat[, which(countrynames == countrycode)]
+  props <- cntrmatprop[, which(countrynames == countrycode)]
   names(counts) <- names(props) <- surnames
   sortorder <- order(props, decreasing=TRUE)
   return(data.frame(
     fbcount = counts[sortorder],
     fbprop = props[sortorder],
-    ntvcount = ntvmat[1, sortorder]
+    ntvcount = ntvmat[sortorder,1]
   ))
 }
 
-# Create a blank data frame to store the result
 fb_estimates <- data.frame(
   fb_among_exclusive_surnames = rep(NA, N_countrynames),
   exclusive_surnames = rep(NA, N_countrynames),
@@ -45,9 +44,7 @@ for (i in 1:N_countrynames){
 tmp <- fb_estimates
 tmp[,1] <- round(100*tmp[, 1], 1)
 tmp <- tmp[order(tmp[, 3], decreasing=TRUE), ]
-write.csv(tmp, file="test.csv")
-
-#write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames.csv")
+write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames.csv")
 
 #plot(total,tmp4,pch=16,col=rgb(0,0,0,0.2),cex=sqrt(total/100),
 #     xlab="Total with Surname",ylab="Fraction Foreign Born with Surname",
