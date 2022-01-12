@@ -33,6 +33,14 @@ ntvmat2 <- sparseMatrix(
 rownames(ntvmat2) = surnames
 colnames(ntvmat2) = "US"
 
+ntvmat <- sparseMatrix(
+  i = rep(1,sum(!is.na(ntv$surname))),
+  j = as.integer(ntv$surname[!is.na(ntv$surname)]),
+  x = as.integer(ntv$freq[!is.na(ntv$surname)]),
+  dims = c(1,N_surnames))
+rownames(ntvmat) = "US"
+colnames(ntvmat) = surnames
+
 # Create US terr column sparse matrix
 terrmat2 <- sparseMatrix(
   i = as.integer(terr$surname),
@@ -41,6 +49,14 @@ terrmat2 <- sparseMatrix(
   dims = c(N_surnames,1))
 rownames(terrmat2) = surnames
 colnames(terrmat2) = "Territory"
+
+terrmat <- sparseMatrix(
+  i = rep(1,nrow(terr)),
+  j = as.integer(terr$surname),
+  x = as.integer(terr$freq),
+  dims = c(1,N_surnames))
+rownames(terrmat) = "Territory"
+colnames(terrmat) = surnames
 
 # Create foreign born column sparse matrix
 fbmat2 <- sparseMatrix(
@@ -51,6 +67,14 @@ fbmat2 <- sparseMatrix(
 rownames(fbmat2) = surnames
 colnames(fbmat2) = "Foreign"
 
+fbmat <- sparseMatrix(
+  i = rep(1,nrow(fb)),
+  j = as.integer(fb$surname),
+  x = as.integer(fb$freq),
+  dims = c(1,N_surnames))
+rownames(fbmat) = "Foreign"
+colnames(fbmat) = surnames
+
 # Create N_surnames by N_countrynames sparse matrix
 cntrmat2 <- sparseMatrix(
   i = as.integer(cntr$surname),
@@ -60,13 +84,27 @@ cntrmat2 <- sparseMatrix(
 rownames(cntrmat2) = surnames
 colnames(cntrmat2) = countrynames
 
-a <- fbmat2[1, ] + terrmat2[1, ] == fbmat[, 1] + terrmat[, 1]
+cntrmat <- sparseMatrix(
+  i = as.integer(cntr$country),
+  j = as.integer(cntr$surname),
+  x = as.integer(cntr$freq),
+  dims = c(N_countrynames,N_surnames))
+rownames(cntrmat) = countrynames
+colnames(cntrmat) = surnames
 
 
+a <- fbmat2[1, ] + terrmat2[1, ] 
+b <- fbmat[, 1] + terrmat[, 1]
+
+shape(cntrmat)
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
 cntrmat2prop <- sweep(cntrmat2, 1, fbmat2[1, ] + terrmat2[1, ], FUN="/")
+cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")
 gc()
+
+cntrmatprop_t <- t(cntrmatprop)
+sum(cntrmat2prop != cntrmatprop_t)
 
 # Save objects
 save(cntrmat, cntrmatprop, 
