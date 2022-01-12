@@ -25,54 +25,47 @@ N_countrynames <- length(countrynames)
 cntr$country <- factor(cntr$country, levels=countrynames)
 
 # Create US born column sparse matrix
-ntvmat <- sparseMatrix(
+ntvmat2 <- sparseMatrix(
   i = as.integer(ntv$surname[!is.na(ntv$surname)]),
   j = rep(1,sum(!is.na(ntv$surname))),
   x = as.integer(ntv$freq[!is.na(ntv$surname)]),
   dims = c(N_surnames,1))
-rownames(ntvmat) = surnames
-colnames(ntvmat) = "US"
+rownames(ntvmat2) = surnames
+colnames(ntvmat2) = "US"
 
 # Create US terr column sparse matrix
-terrmat <- sparseMatrix(
+terrmat2 <- sparseMatrix(
   i = as.integer(terr$surname),
   j = rep(1,nrow(terr)),
   x = as.integer(terr$freq),
   dims = c(N_surnames,1))
-rownames(terrmat) = surnames
-colnames(terrmat) = "Territory"
+rownames(terrmat2) = surnames
+colnames(terrmat2) = "Territory"
 
 # Create foreign born column sparse matrix
-fbmat <- sparseMatrix(
+fbmat2 <- sparseMatrix(
   i = as.integer(fb$surname),
   j = rep(1,nrow(fb)),
   x = as.integer(fb$freq),
   dims = c(N_surnames,1))
-rownames(fbmat) = surnames
-colnames(fbmat) = "Foreign"
+rownames(fbmat2) = surnames
+colnames(fbmat2) = "Foreign"
 
 # Create N_surnames by N_countrynames sparse matrix
-cntrmat <- sparseMatrix(
+cntrmat2 <- sparseMatrix(
   i = as.integer(cntr$surname),
   j = as.integer(cntr$country),
   x = as.integer(cntr$freq),
   dims = c(N_surnames, N_countrynames))
-rownames(cntrmat) = surnames
-colnames(cntrmat) = countrynames
+rownames(cntrmat2) = surnames
+colnames(cntrmat2) = countrynames
 
+a <- fbmat2[1, ] + terrmat2[1, ] == fbmat[, 1] + terrmat[, 1]
 
-# What's the matter with "Nguyen"?
-sort(prop.table(cntrmat[which.max(rowSums(cntrmat)), ]))
-
-# What about "Lauderdale"?
-cntrmat[grep("LAUDERDALE", surnames), ]
-
-# Combine US, Terr, and Foreign matrices
-denommat <- cbind(ntvmat,terrmat,fbmat)
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
-cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")
+cntrmat2prop <- sweep(cntrmat2, 1, fbmat2[1, ] + terrmat2[1, ], FUN="/")
 gc()
 
 # Save objects
