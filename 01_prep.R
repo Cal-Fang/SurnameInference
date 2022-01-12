@@ -26,53 +26,53 @@ cntr$country <- factor(cntr$country, levels=countrynames)
 
 # Create US born column sparse matrix
 ntvmat <- sparseMatrix(
-  i = as.integer(ntv$surname[!is.na(ntv$surname)]),
-  j = rep(1,sum(!is.na(ntv$surname))),
+  i = rep(1,sum(!is.na(ntv$surname))),
+  j = as.integer(ntv$surname[!is.na(ntv$surname)]),
   x = as.integer(ntv$freq[!is.na(ntv$surname)]),
-  dims = c(N_surnames,1))
-rownames(ntvmat) = surnames
-colnames(ntvmat) = "US"
+  dims = c(1,N_surnames))
+rownames(ntvmat) = "US"
+colnames(ntvmat) = surnames
 
 # Create US terr column sparse matrix
 terrmat <- sparseMatrix(
-  i = as.integer(terr$surname),
-  j = rep(1,nrow(terr)),
+  i = rep(1,nrow(terr)),
+  j = as.integer(terr$surname),
   x = as.integer(terr$freq),
-  dims = c(N_surnames,1))
-rownames(terrmat) = surnames
-colnames(terrmat) = "Territory"
+  dims = c(1,N_surnames))
+rownames(terrmat) = "Territory"
+colnames(terrmat) = surnames
 
 # Create foreign born column sparse matrix
 fbmat <- sparseMatrix(
-  i = as.integer(fb$surname),
-  j = rep(1,nrow(fb)),
+  i = rep(1,nrow(fb)),
+  j = as.integer(fb$surname),
   x = as.integer(fb$freq),
-  dims = c(N_surnames,1))
-rownames(fbmat) = surnames
-colnames(fbmat) = "Foreign"
+  dims = c(1,N_surnames))
+rownames(fbmat) = "Foreign"
+colnames(fbmat) = surnames
 
 # Create N_surnames by N_countrynames sparse matrix
 cntrmat <- sparseMatrix(
-  i = as.integer(cntr$surname),
-  j = as.integer(cntr$country),
+  i = as.integer(cntr$country),
+  j = as.integer(cntr$surname),
   x = as.integer(cntr$freq),
-  dims = c(N_surnames, N_countrynames))
-rownames(cntrmat) = surnames
-colnames(cntrmat) = countrynames
+  dims = c(N_countrynames,N_surnames))
+rownames(cntrmat) = countrynames
+colnames(cntrmat) = surnames
 
 
 # What's the matter with "Nguyen"?
-sort(prop.table(cntrmat[which.max(rowSums(cntrmat)), ]))
+sort(prop.table(cntrmat[, which.max(colSums(cntrmat))]))
 
 # What about "Lauderdale"?
-cntrmat[grep("LAUDERDALE", surnames), ]
+cntrmat[, grep("LAUDERDALE", surnames)]
 
 # Combine US, Terr, and Foreign matrices
-denommat <- cbind(ntvmat,terrmat,fbmat)
+denommat <- rbind(ntvmat, terrmat, fbmat)
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
-cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")
+cntrmatprop <- sweep(cntrmat, 1, fbmat[1, ] + terrmat[1, ], FUN="/")
 gc()
 
 # Save objects
