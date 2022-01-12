@@ -4,12 +4,10 @@ library(Matrix)
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 # Load in the data
-load(file="data/AllData.Rdata")
-estimates_exc <- read.csv("data/ForeignBornAmongExclusiveSurnames.csv")
+load(file="data/AllData2.Rdata")
 
 # Build the convergence loop
 
-cntrmat[1:3, 1:3]
 
 
 
