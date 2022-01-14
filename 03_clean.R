@@ -2,6 +2,7 @@ library(tidyverse)
 library(data.table)
 library(stringr)
 library(countrycode)
+library(cgwtools)
 
 # Set working directory
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
@@ -55,13 +56,27 @@ nonAPI_list <- c("Antarctica", "Byelarus", "Bouvetoya", "Central African Empire"
                "St. Martin", "St. Christopher-Nevis-Anguilla", "Swan Islands", "Spanish Sahara", "South Georgia and the South Sandwich Island",
                "Tromelin Island", "South-West Africa", "Berlin, West", "Yugoslavia ", "Yugoslavia")
 
-SSAcountrycode <- SSAcountrycode %>% 
+SSAcountrycode_AAPI <- SSAcountrycode %>% 
   filter(!(countryname1 %in% nonAPI_list))
+
+# Save the file just in case
+# write.csv(SSAcountrycode_AAPI, file="data/SSAcountrycode_AAPI.csv")
+
+# Keep the newest name
+newest_AAPI <- SSAcountrycode_AAPI %>% 
+  mutate(newestname = coalesce(countryname4, countryname3, countryname2, countryname1)) %>% 
+  select(code, newestname)
+
 
 # Read in the Rdata file from 01 script
 load(file="data/AllData2.Rdata")
 
 # Match the code to country name
+setDT(fb_estimates, keep.rownames = TRUE)
+fb_estimates <- fb_estimates %>% 
+  merge(newest_AAPI, by.x = "rn", by.y = "code")
 
+# Update the fb_estimates csv file
+write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
 
 resave(SSAcountrycode, file="data/AllData2.Rdata")
