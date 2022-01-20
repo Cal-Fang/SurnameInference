@@ -45,6 +45,7 @@ for (i in 1:((ncol(SSAcountrycode)-1)/3)) {
 
 colnames(SSAcountrycode) <- colnamel
 
+# STEP 1
 # Create a continent column and filter out confirmed other continents
 SSAcountrycode <- SSAcountrycode %>% 
   mutate(continent = countrycode(sourcevar = countryname1,
@@ -83,6 +84,7 @@ newest_AAPI <- SSAcountrycode_AAPI %>%
 # 
 # resave(SSAcountrycode, file="data/AllData2.Rdata")
 
+# STEP 2
 # Add region
 SouthAsia <- c("Afghanistan", "Bangladesh", "Bhutan", "Maldives", "Nepal", "Sri Lanka",
                "British India", "India", "Pakistan", "Sikkim")
@@ -114,6 +116,67 @@ census_Asian <- newest_AAPI %>%
                                           ifelse(newestname %in% SoutheastAsia, 'SoutheastAsia', 
                                                  ifelse(newestname %in% CentralAsia, 'CentralAsia', 
                                                         ifelse(newestname %in% WesternAsia, 'WesternAsia', NA))))))) %>% 
-  filter(!(newestname %in% droplist))
+  filter(!(newestname %in% droplist)) %>% 
+  filter(region %in% c('SouthAsia', 'EastAsia', 'SoutheastAsia'))
 
+# STEP 3
+# Combine codes that were different because of SSA country code revision
+census_Asian <- census_Asian %>% 
+  mutate(code2 = ifelse(code %in% c("YQ", "JA"), "JA",
+                        ifelse(code %in% c("SK", "XB", "IN"), "IN",
+                               ifelse(code %in% c("XK", "KS", "KN"), "XK",
+                                      ifelse(code %in% c("PT", "TT"), "TT",
+                                             ifelse(code %in% c("VN", "VS", "VM"), "VM", code))))))
+
+# STEP 4
+# Drop some countries that had no sufficient information in SSA dataset
+census_Asian <- census_Asian %>% 
+  filter(!(code2 %in% c("PG", "CK", "PF", "TT")))
+
+# STEP 5
+cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
+
+# Create a function to test the impact on the exclusive names result of different ways of combining codes
+TestCountryCombn <- function(code_list, df=cntr){
+  # Make sure to read in the cntr dataset as a dataframe named as cntr
+  
+  # Generate all combinations to be tested
+  res <- Map(combn, list(code_list), seq_along(code_list), simplify = FALSE)
+  test_list <- unlist(res, recursive = FALSE)
+  
+  result <- data.frame(freqSum = double(),
+                       freqPercent = double(),
+                       surnameCount = double(),
+                       surnamePercent = double(),
+                       country_tested = list())
+  
+  for (test_comb in test_list){
+    # Get the subset of the country(s) to be tested and the complement subset
+    df_tmp <- subset(df, country %in% test_comb)
+    tmp_surname <- unique(df_tmp$surname)
+    df_rest <- subset(df, !(country %in% test_comb))
+    rest_surname <- unique(df_rest$surname)
+    
+    # Get the name only in the country(s) to be tested
+    unique_surname <- setdiff(tmp_surname, rest_surname)
+    
+    # Generate a summary fir this test unit
+    unique_summary <- df_tmp %>% 
+      mutate(unique = ifelse(surname %in% unique_surname, TRUE, FALSE)) %>% 
+      summarise(freqSum = sum(freq[unique == TRUE]),
+                freqPercent = freqSum / sum(freq),
+                surnameCount = n_distinct(surname[unique == TRUE]),
+                surnamePercent = surnameCount / n_distinct(surname),
+                country_tested = paste(test_comb, collapse=', ')
+                )
+    
+    result <- rbind(result, unique_summary)
+  }
+  
+  return(result)
+}
+
+
+test1 <- c("BX", "ID")
+result1 <- TestCountryCombn(test1)
 
