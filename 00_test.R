@@ -26,3 +26,33 @@ for (i in countrynames){
 # # Specify the number of cores/workers we want to use
 # n_cores <- detectCores() - 1
 # n_cores
+
+cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
+
+cntr %>% 
+  filter(country == "BX") %>% 
+  summarize(sum = sum(freq))
+
+cntr %>% 
+  filter(country == "YQ") 
+
+""
+
+
+
+cntr %>% 
+  filter(surname == "CUNHA       ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
