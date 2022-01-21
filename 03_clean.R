@@ -134,11 +134,16 @@ census_Asian <- census_Asian %>%
   filter(!(code2 %in% c("PG", "CK", "PF", "TT")))
 
 # STEP 5
+# Put all revision above onto the cntr dataset
 cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
+cntr_census <- cntr %>% 
+  merge(census_Asian, by.x = "country", by.y = "code") %>% 
+  filter(!is.na(code2))
 
 # Create a function to test the impact on the exclusive names result of different ways of combining codes
-TestCountryCombn <- function(code_list, df=cntr){
+TestCountryCombn <- function(code_list, df=cntr_census){
   # Make sure to read in the cntr dataset as a dataframe named as cntr
+  # And merge the code2 onto the cntr and rename it as cntr_census
   
   # Generate all combinations to be tested
   res <- Map(combn, list(code_list), seq_along(code_list), simplify = FALSE)
@@ -152,9 +157,9 @@ TestCountryCombn <- function(code_list, df=cntr){
   
   for (test_comb in test_list){
     # Get the subset of the country(s) to be tested and the complement subset
-    df_tmp <- subset(df, country %in% test_comb)
+    df_tmp <- subset(df, code2 %in% test_comb)
     tmp_surname <- unique(df_tmp$surname)
-    df_rest <- subset(df, !(country %in% test_comb))
+    df_rest <- subset(df, !(code2 %in% test_comb))
     rest_surname <- unique(df_rest$surname)
     
     # Get the name only in the country(s) to be tested
@@ -176,7 +181,27 @@ TestCountryCombn <- function(code_list, df=cntr){
   return(result)
 }
 
-
+# Test on the five potential combination lists
 test1 <- c("BX", "ID")
 result1 <- TestCountryCombn(test1)
 
+test2 <- c("ID", "MY", "RP")
+result2 <- TestCountryCombn(test2)
+
+test3 <- c("CH", "HK", "TW", "MC", "SN")
+result3 <- TestCountryCombn(test3)
+
+test4 <- c("IN", "PK", "BG", "NP")
+result4 <- TestCountryCombn(test4)
+
+test5 <- c("TH", "LA")
+result5 <- TestCountryCombn(test5)
+
+# Print out the test results
+library(xlsx)
+
+write.xlsx(result1, file="testresults.xlsx", sheetName="BX_ID", row.names=FALSE)
+write.xlsx(result2, file="testresults.xlsx", sheetName="ID_MY_RP", append=TRUE, row.names=FALSE)
+write.xlsx(result3, file="testresults.xlsx", sheetName="CH_HK_TW_MC_SN", append=TRUE, row.names=FALSE)
+write.xlsx(result4, file="testresults.xlsx", sheetName="IN_PK_BG_NP", append=TRUE, row.names=FALSE)
+write.xlsx(result5, file="testresults.xlsx", sheetName="TH_LA", append=TRUE, row.names=FALSE)
