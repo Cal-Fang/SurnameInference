@@ -43,11 +43,12 @@ cntr %>%
 cntr %>% 
   filter(surname == "CUNHA       ")
 
+library(haven)
+SSA_raw <- read_dta("data/usa_00027.dat")
 
 
-
-
-
+readLines("data/usa_00027.dat", 
+          n=10)
 
 
 
