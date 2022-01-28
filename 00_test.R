@@ -20,7 +20,6 @@ for (i in countrynames){
 
 
 
-
 # library(doParallel)
 # 
 # # Specify the number of cores/workers we want to use
