@@ -39,9 +39,20 @@ cntr %>%
 ""
 
 
+library(tidyverse)
+cntr %>% 
+
+
+plot(cntr$freq)  
+
 
 cntr %>% 
-  filter(surname == "CUNHA       ")
+  filter(surname == "A           ") %>% 
+  summarise(sum = sum(freq))
+
+terr %>% 
+  filter(surname == "ZHAO        ") %>% 
+  summarise(sum = sum(freq))
 
 library(haven)
 SSA_raw <- read_dta("data/usa_00027.dat")
