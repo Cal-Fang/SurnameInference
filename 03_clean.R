@@ -197,11 +197,17 @@ result4 <- TestCountryCombn(test4)
 test5 <- c("TH", "LA")
 result5 <- TestCountryCombn(test5)
 
-# Print out the test results
-library(xlsx)
+# # Print out the test results
+# library(xlsx)
+# 
+# write.xlsx(result1, file="testresults.xlsx", sheetName="BX_ID", row.names=FALSE)
+# write.xlsx(result2, file="testresults.xlsx", sheetName="ID_MY_RP", append=TRUE, row.names=FALSE)
+# write.xlsx(result3, file="testresults.xlsx", sheetName="CH_HK_TW_MC_SN", append=TRUE, row.names=FALSE)
+# write.xlsx(result4, file="testresults.xlsx", sheetName="IN_PK_BG_NP", append=TRUE, row.names=FALSE)
+# write.xlsx(result5, file="testresults.xlsx", sheetName="TH_LA", append=TRUE, row.names=FALSE)
 
-write.xlsx(result1, file="testresults.xlsx", sheetName="BX_ID", row.names=FALSE)
-write.xlsx(result2, file="testresults.xlsx", sheetName="ID_MY_RP", append=TRUE, row.names=FALSE)
-write.xlsx(result3, file="testresults.xlsx", sheetName="CH_HK_TW_MC_SN", append=TRUE, row.names=FALSE)
-write.xlsx(result4, file="testresults.xlsx", sheetName="IN_PK_BG_NP", append=TRUE, row.names=FALSE)
-write.xlsx(result5, file="testresults.xlsx", sheetName="TH_LA", append=TRUE, row.names=FALSE)
+# Combine some codes according to the test results above
+census_Asian <- census_Asian %>% 
+  mutate(code3 = ifelse(code2 %in% c("BX", "ID"), "GDA",
+                        ifelse(code2 %in% c("CH", "HK", "TW", "MC"), "GCA",
+                               ifelse(code2 %in% c("IN", "PK", "BG"), "GIA", code2))))
