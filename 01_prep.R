@@ -4,7 +4,7 @@ library(Matrix)
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
-#fb <- read.fwf("data/srnmfb.txt", c(12,8), col.names=c("surname","freq"))
+# fb <- read.fwf("data/srnmfb.txt", c(12,8), col.names=c("surname","freq"))
 ntv <- read.fwf("data/srnmntv.txt", c(12,8), col.names=c("surname","freq"))
 terr <- read.fwf("data/srnmterr.txt", c(12,8), col.names=c("surname","freq"))
 
@@ -14,6 +14,14 @@ fb <- cntr %>%
   filter(freq > 2) %>% 
   group_by(surname) %>% 
   summarise(freq = sum(freq))
+
+# Also need to combine ntv and terr cuz it just makes more sense
+us <- ntv %>% 
+  merge(terr, by="surname", all=TRUE) %>% 
+  mutate(freq.x = replace_na(freq.x, 0),
+         freq.y = replace_na(freq.y, 0),
+         freq = freq.x + freq.y) %>% 
+  select(-c(freq.x, freq.y))
 
 # Create vector of unique surnames and update factor levels for all objects
 surnames <- sort(union(fb$surname, terr$surname))      # Take out all surnames appearing in foreign born or us territory files
