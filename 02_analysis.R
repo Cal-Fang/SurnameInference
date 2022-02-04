@@ -63,4 +63,4 @@ save(cntrmat, cntrmatprop,
      surnames, N_surnames,
      countrynames, N_countrynames,
      fb_estimates,
-     file="data/AllData2.Rdata")
+     file="data/AllData.Rdata")
