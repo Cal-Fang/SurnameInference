@@ -59,8 +59,8 @@ denommat <- t(denommat)
 
 # Update the data file
 save(cntrmat, cntrmatprop, 
-     fbmat, ntvmat, terrmat, denommat,
+     fbmat, ntvmat, terrmat, denommat, us,
      surnames, N_surnames,
      countrynames, N_countrynames,
      fb_estimates,
-     file="data/AllData.Rdata")
+     file="data/AllData2.Rdata")
