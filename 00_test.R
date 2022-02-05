@@ -1,78 +1,99 @@
 library(Matrix)
+library(tidyverse)
 
 # Set working directory and read in the four datasets
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 # Load in the data
 load(file="data/AllData.Rdata")
+load(file="data/AllData2.Rdata")
+load(file="data/AllData3.Rdata")
 
 # Create test dataset first 
 # Use TH ("Thailand") for this test by the way
-library(tidyverse)
 test1 <- cntr %>% 
   filter(country == "TH")
+
 sur_test <- sort(unique(test1$surname))
+cntr_test <- c("AF", "BM", "BT", "CB", "CE", "JA", "LA", "MG", "MV", "MY", "NP", "RP", "SN", "TH", "VM", "XK")    # Drop "GCA", "GDA", "GIA" for this test
 
 test2 <- us %>% 
   filter(surname %in% sur_test)
-test3 <- fb %>% 
-  filter(surname %in% sur_test)
 
+# test4 contain all surnames appear in TH tests but recategorize all country codes not in census_Asia into "Other"
 test4 <- cntr %>% 
-  filter((country != "TH") & 
-           (surnames %in% sur_test))
+  filter(surname %in% sur_test) %>% 
+  merge(census_Asian[, c("code", "code3")], by.x="country", by.y="code", all=TRUE)
+test4.1 <- test4 %>% 
+  filter(is.na(code3)) %>% 
+  group_by(surname) %>% 
+  summarise(freq = sum(freq),
+            country = "Other")
+test4 <- test4 %>% 
+  filter(!is.na(code3)) %>% 
+  select(-country) %>% 
+  rename(country = code3) %>% 
+  rbind(test4.1) %>% 
+  drop_na()
 
-# Test the convergence loop on several values
-for (i in countrynames) 
-{
-  pi_ij <- Y_ij / phi_i * (Y_0j + sum(Y_ij)) / sum(Y_ij / phi_i)
-  for (j in surnames)
-  {
-    Y_ij_frame = Y_ij_frame %>% 
-      filter(Y_ij > 0)
-    phi_i = sum(Y_ij / pi_ij) / length(Y_ij)
-  }
-}
+# transform the fb_estimates just for the test
+fb_estimates2 <- fb_estimates %>%
+  cbind(code = rownames(fb_estimates)) %>% 
+  drop_na() %>% 
+  select(-c("exclusive_surnames", "count_with_exclusive_surnames"))
+rownames(fb_estimates2) <- 1:nrow(fb_estimates2)
+
+phi <- fb_estimates2 %>% 
+  merge(census_Asian[, c("code", "code3")], all.x=TRUE) %>% 
+  drop_na() %>%
+  rename(country = code3,
+         phi = "fb_among_exclusive_surnames") %>% 
+  select(-c(code)) %>% 
+  filter(country %in% cntr_test)
   
 
-pi_vietnam_chew <- cntr["vietnam", "Chew"] / fb_estimates["vietnam"] * (ntv["Chew"] + terr["Chew"] + sum(cntr["Chew"])) / 
+# Test the convergence loop on several values
+N <- length(cntr_test)
+M <- length(sur_test)
 
+Pi = matrix(NA, nrow = N, ncol = M)
 
+phi = rbeta(n = N, shape1 = 1, shape2 = 1)
+Y = matrix(rnorm(N*M), nrow = N, ncol = M)
+Y0 = rnorm(M)
 
+for (i in 1:N) {
+  for(j in 1:M) {
+    Pi[i,j] = Y[i,j] / phi[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi))
+  }
+}
 
+for (i in 1:N) {
+  index_i = which(Y[i,] > 0)
+  phi[i] = mean(Y[i, index_i] / Pi[i, index_i])
+}
 
+Pi_old = Pi
+phi_old = phi
 
+eps = 1e-4
+diff = 100
 
-
-
-
-
-
-
-# library(doParallel)
-# 
-# # Specify the number of cores/workers we want to use
-# n_cores <- detectCores() - 1
-# n_cores
-
-cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
-
-cntr %>% 
-  filter(country == "BX") %>% 
-  summarize(sum = sum(freq))
-
-cntr %>% 
-  filter(country == "YQ") 
-
-
-cntr %>% 
-  filter(surname == "A           ") %>% 
-  summarise(sum = sum(freq))
-
-terr %>% 
-  filter(surname == "ZHAO        ") %>% 
-  summarise(sum = sum(freq))
-
-
+while (diff > eps) {
+  for (i in 1:N) {
+    for(j in 1:M) {
+      Pi[i,j] = Y[i,j] / phi_old[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi_old))
+    }
+  }
+  
+  for (i in 1:N) {
+    index_i = which(Y[i,] > 0)
+    phi[i] = mean(Y[i, index_i] / Pi[i, index_i])
+  }
+  
+  diff = max(max(abs(phi - phi_old)), max(abs(Pi - Pi_old)))
+  Pi_old = Pi
+  phi_old = phi
+}
 
 
