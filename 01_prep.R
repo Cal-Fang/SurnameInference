@@ -91,7 +91,7 @@ gc()
 
 # Save objects
 save(cntrmat, cntrmatprop, 
-     fbmat, ntvmat, terrmat, denommat,
+     fbmat, ntvmat, terrmat, denommat, us,
      surnames, N_surnames,
      countrynames, N_countrynames,
      file="data/AllData.Rdata")
