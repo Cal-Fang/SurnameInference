@@ -211,3 +211,7 @@ census_Asian <- census_Asian %>%
   mutate(code3 = ifelse(code2 %in% c("BX", "ID"), "GDA",
                         ifelse(code2 %in% c("CH", "HK", "TW", "MC"), "GCA",
                                ifelse(code2 %in% c("IN", "PK", "BG"), "GIA", code2))))
+
+# Save the Rdata
+save(census_Asian,
+     file="data/AllData3.Rdata")
