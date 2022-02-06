@@ -1,4 +1,5 @@
 library(Matrix)
+library(tidyverse)
 
 # Set working directory and read in the four datasets
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
@@ -22,6 +23,12 @@ us <- ntv %>%
          freq.y = replace_na(freq.y, 0),
          freq = freq.x + freq.y) %>% 
   select(-c(freq.x, freq.y))
+
+# Apply the data cleaning result onto the cntr dataset
+cntr <- cntr %>% 
+  merge(census_Asian[, c("code", "code3")], by.x="country", by.y="code", all.x=TRUE) %>% 
+  mutate(country2 = ifelse(is.na(code3), "Other", code3)) %>% 
+  select(-c(code3))
 
 # Create vector of unique surnames and update factor levels for all objects
 surnames <- sort(union(fb$surname, terr$surname))      # Take out all surnames appearing in foreign born or us territory files
