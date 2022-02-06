@@ -34,7 +34,8 @@ test4 <- test4 %>%
   select(-country) %>% 
   rename(country = code3) %>% 
   rbind(test4.1) %>% 
-  drop_na()
+  drop_na() %>% 
+  filter(country %in% cntr_test)
 
 # transform the fb_estimates just for the test
 fb_estimates2 <- fb_estimates %>%
@@ -43,14 +44,23 @@ fb_estimates2 <- fb_estimates %>%
   select(-c("exclusive_surnames", "count_with_exclusive_surnames"))
 rownames(fb_estimates2) <- 1:nrow(fb_estimates2)
 
-phi <- fb_estimates2 %>% 
+phi_df <- fb_estimates2 %>% 
   merge(census_Asian[, c("code", "code3")], all.x=TRUE) %>% 
   drop_na() %>%
   rename(country = code3,
          phi = "fb_among_exclusive_surnames") %>% 
   select(-c(code)) %>% 
   filter(country %in% cntr_test)
-  
+
+phi_df <- phi_df[order(phi_df$country), ]
+
+# Make sure the Y0 has the same length
+Y0_df <- test2[order(test2$surname), ]
+df <- as.data.frame(sur_test)
+colnames(df) <- "surname"
+Y0_df <- Y0_df %>% 
+  merge(df, all=TRUE)
+Y0_df[is.na(Y0_df)] <- 0
 
 # Test the convergence loop on several values
 N <- length(cntr_test)
@@ -58,9 +68,17 @@ M <- length(sur_test)
 
 Pi = matrix(NA, nrow = N, ncol = M)
 
-phi = rbeta(n = N, shape1 = 1, shape2 = 1)
+phi <- phi_df$phi
 Y = matrix(rnorm(N*M), nrow = N, ncol = M)
-Y0 = rnorm(M)
+Y0 = Y0_df$freq
+
+test4$surname <- factor(test4$surname, levels=sur_test)
+test4$country <- factor(test4$country, levels=cntr_test)
+Y <- sparseMatrix(
+  i = as.integer(test4$surname),
+  j = as.integer(test4$country),
+  x = as.integer(test4$freq),
+  dims = c(length(sur_test), length(cntr_test)))
 
 for (i in 1:N) {
   for(j in 1:M) {
@@ -76,7 +94,7 @@ for (i in 1:N) {
 Pi_old = Pi
 phi_old = phi
 
-eps = 1e-4
+eps = 1e-2
 diff = 100
 
 while (diff > eps) {
@@ -96,4 +114,4 @@ while (diff > eps) {
   phi_old = phi
 }
 
-
+Pi[11, ]
