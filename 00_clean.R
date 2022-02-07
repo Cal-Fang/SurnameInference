@@ -71,19 +71,6 @@ newest_AAPI <- SSAcountrycode_AAPI %>%
   mutate(newestname = coalesce(countryname4, countryname3, countryname2, countryname1)) %>% 
   select(code, newestname)
 
-# # Read in the Rdata file from 01 script
-# load(file="data/AllData2.Rdata")
-# 
-# # Match the code to country name
-# setDT(fb_estimates, keep.rownames = TRUE)
-# fb_estimates <- fb_estimates %>% 
-#   merge(newest_AAPI, by.x = "rn", by.y = "code")
-# 
-# # Update the fb_estimates csv file
-# write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
-# 
-# resave(SSAcountrycode, file="data/AllData2.Rdata")
-
 # STEP 2
 # Add region
 SouthAsia <- c("Afghanistan", "Bangladesh", "Bhutan", "Maldives", "Nepal", "Sri Lanka",
@@ -212,6 +199,5 @@ census_Asian <- census_Asian %>%
                         ifelse(code2 %in% c("CH", "HK", "TW", "MC"), "GCA",
                                ifelse(code2 %in% c("IN", "PK", "BG"), "GIA", code2))))
 
-# Save the Rdata
-save(census_Asian,
-     file="data/AllData3.Rdata")
+# Save the census_Asian
+write.csv(census_Asian, file="data/census_Asian.csv")
