@@ -169,20 +169,20 @@ TestCountryCombn <- function(code_list, df=cntr_census){
 }
 
 # Test on the five potential combination lists
-test1 <- c("BX", "ID")
-result1 <- TestCountryCombn(test1)
-
-test2 <- c("ID", "MY", "RP")
-result2 <- TestCountryCombn(test2)
-
-test3 <- c("CH", "HK", "TW", "MC", "SN")
-result3 <- TestCountryCombn(test3)
-
-test4 <- c("IN", "PK", "BG", "NP")
-result4 <- TestCountryCombn(test4)
-
-test5 <- c("TH", "LA")
-result5 <- TestCountryCombn(test5)
+# test1 <- c("BX", "ID")
+# result1 <- TestCountryCombn(test1)
+# 
+# test2 <- c("ID", "MY", "RP")
+# result2 <- TestCountryCombn(test2)
+# 
+# test3 <- c("CH", "HK", "TW", "MC", "SN")
+# result3 <- TestCountryCombn(test3)
+# 
+# test4 <- c("IN", "PK", "BG", "NP")
+# result4 <- TestCountryCombn(test4)
+# 
+# test5 <- c("TH", "LA")
+# result5 <- TestCountryCombn(test5)
 
 # # Print out the test results
 # library(xlsx)
@@ -199,5 +199,10 @@ census_Asian <- census_Asian %>%
                         ifelse(code2 %in% c("CH", "HK", "TW", "MC"), "GCA",
                                ifelse(code2 %in% c("IN", "PK", "BG"), "GIA", code2))))
 
-# Save the census_Asian
-write.csv(census_Asian, file="data/census_Asian.csv")
+# Create a new dataframe for the use of replacing the code in later analysis
+code_replace <- census_Asian %>% 
+  merge(SSAcountrycode[,"code"], all.y=TRUE) %>% 
+  mutate(new_code = ifelse(is.na(code3), "Other", code3)) %>% 
+  select(c(code, new_code))
+
+write.csv(code_replace, file="data/code_replace.csv")
