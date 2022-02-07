@@ -1,3 +1,7 @@
+# Clear out the history
+rm(list = ls())
+
+# Read in the libraries needed
 library(tidyverse)
 library(data.table)
 library(stringr)
