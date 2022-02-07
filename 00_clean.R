@@ -209,4 +209,7 @@ code_replace <- census_Asian %>%
   mutate(new_code = ifelse(is.na(code3), "Other", code3)) %>% 
   select(c(code, new_code))
 
-write.csv(code_replace, file="data/code_replace.csv")
+write_csv(code_replace, file="data/code_replace.csv")
+# Later found this file mistakenly dropped two codes, "NA" and "ZI", 
+# So I added a mutation step later when merging this with cntr
+
