@@ -1,3 +1,7 @@
+# Clear out the history
+rm(list = ls())
+
+# Read in the libraries needed
 library(Matrix)
 
 # Set working directory and read in the four datasets
@@ -20,14 +24,14 @@ constructCountryNameList <- function(countrycode){
 }
 
 fb_estimates <- data.frame(
-  fb_among_exclusive_surnames = rep(NA, N_countrynames),
-  exclusive_surnames = rep(NA, N_countrynames),
-  count_with_exclusive_surnames = rep(NA, N_countrynames),
+  fb_among_exclusive_surnames = rep(NA, N),
+  exclusive_surnames = rep(NA, N),
+  count_with_exclusive_surnames = rep(NA, N),
   row.names = countrynames
 )
 
 # Create a dataframe of foreign-born estmiates of exclusive names
-for (i in 1:N_countrynames){
+for (i in 1:N){
   tmp <- constructCountryNameList(countrynames[i])
   tmp2 <- tmp$fbprop == 1
   tmp3 <- tmp[tmp2, ]
@@ -40,27 +44,23 @@ for (i in 1:N_countrynames){
 }
 
 # Save the file just in case
-# tmp <- fb_estimates
-# tmp[,1] <- round(100*tmp[, 1], 1)
-# tmp <- tmp[order(tmp[, 3], decreasing=TRUE), ]
-# write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames.csv")
-
-#plot(total,tmp4,pch=16,col=rgb(0,0,0,0.2),cex=sqrt(total/100),
-#     xlab="Total with Surname",ylab="Fraction Foreign Born with Surname",
-#     main="Exclusive Surnames")
+tmp <- fb_estimates
+tmp[,1] <- round(100*tmp[, 1], 1)
+tmp <- tmp[order(tmp[, 3], decreasing=TRUE), ]
+write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames2.csv")
 
 # Rotate all matrices to match with the method doc
 cntrmat <- t(cntrmat)
 cntrmatprop <- t(cntrmatprop)
 fbmat <- t(fbmat)
 ntvmat <- t(ntvmat)
-terrmat <- t(terrmat)
-denommat <- t(denommat)
+# terrmat <- t(terrmat)
+# denommat <- t(denommat)
 
 # Update the data file
 save(cntrmat, cntrmatprop, 
-     fbmat, ntvmat, terrmat, denommat, us,
-     surnames, N_surnames,
-     countrynames, N_countrynames,
+     fbmat, ntvmat, us,
+     surnames, M,
+     countrynames, N,
      fb_estimates,
      file="data/AllData2.Rdata")
