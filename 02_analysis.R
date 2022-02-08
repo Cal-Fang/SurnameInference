@@ -44,7 +44,7 @@ for (i in 1:N){
 }
 
 # Save the file just in case
-write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames2.csv")
+write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
 
 # Rotate all matrices to match with the method doc
 cntrmat <- t(cntrmat)
@@ -56,7 +56,7 @@ ntvmat <- t(ntvmat)
 
 # Update the data file
 save(cntrmat, cntrmatprop, 
-     fbmat, ntvmat, us,
+     fbmat, ntvmat, 
      surnames, M,
      countrynames, N,
      fb_estimates,
