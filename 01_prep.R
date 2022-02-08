@@ -115,3 +115,5 @@ save(cntrmat, cntrmatprop,
 # What about "Lauderdale"?
 # cntrmat[grep("LAUDERDALE", surnames), ]
 
+# What about "Fang"?
+# cntrmatprop["FANG        ",]
