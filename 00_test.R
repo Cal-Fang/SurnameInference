@@ -1,3 +1,7 @@
+# Clear out the history
+rm(list = ls())
+
+# Read in the libraries needed
 library(Matrix)
 library(tidyverse)
 
@@ -5,9 +9,7 @@ library(tidyverse)
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 # Load in the data
-load(file="data/AllData.Rdata")
 load(file="data/AllData2.Rdata")
-load(file="data/AllData3.Rdata")
 
 # Create test dataset first 
 # Use TH ("Thailand") for this test by the way
