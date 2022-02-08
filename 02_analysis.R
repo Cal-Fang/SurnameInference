@@ -55,8 +55,8 @@ ntvmat <- t(ntvmat)
 # denommat <- t(denommat)
 
 # Update the data file
-save(cntrmat, cntrmatprop, 
-     fbmat, ntvmat, 
+save(cntrmat, ntvmat, 
+     # cntrmatprop, fbmat, 
      surnames, M,
      countrynames, N,
      fb_estimates,
