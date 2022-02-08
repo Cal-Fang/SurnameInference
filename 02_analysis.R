@@ -10,6 +10,8 @@ setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this
 # Load in the data
 load(file="data/AllData.Rdata")
 
+cntrmatprop[is.na(cntrmatprop)] <- 0
+
 # Create a function to get the numbers of a certain country origin
 constructCountryNameList <- function(countrycode){
   counts <- cntrmat[, which(countrynames == countrycode)]

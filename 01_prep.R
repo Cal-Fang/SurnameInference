@@ -96,8 +96,9 @@ colnames(cntrmat) = countrynames
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
-cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + ntvmat[, 1], FUN="/")      
+cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1], FUN="/")      # Originally divided by fbmat[, 1] + terr[, 1]
 gc()                                                                    
+
 
 # STEP 4
 # Save objects
