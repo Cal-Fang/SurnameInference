@@ -1,16 +1,16 @@
 # Clear out the history
 rm(list = ls())
 
-# Read in the libraries needed
+# Read in the packages needed
 library(Matrix)
 library(tidyverse)
 
-# Set working directory and read in the four datasets
+# STEP 1
+# Set working directory and load in the Rdata file generated from analysis script
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
-
-# Load in the data
 load(file="data/AllData2.Rdata")
 
+# STEP 2
 # Create test dataset first 
 # Use TH ("Thailand") for this test by the way
 test1 <- cntr %>% 
