@@ -38,8 +38,8 @@ cntr <- cntr %>%
 
 # STEP 2 
 # Create vector of unique surnames and update factor levels for all objects
-surnames <- sort(union(fb$surname, ntv$surname))      # Originally take out the union of fb and terr. 
-M <- length(surnames)                                 # I think it makes more sense to take the union of fb and ntv.
+surnames <- sort(union(fb$surname, terr$surname))      # Just in case there were names in US territories 
+M <- length(surnames)                                  # identified as exclusive to the 19 asian countries 
 
 cntr$surname <- factor(cntr$surname, levels=surnames)
 fb$surname <- factor(fb$surname, levels=surnames)
@@ -57,26 +57,26 @@ cntr$new_code <- factor(cntr$new_code, levels=countrynames)
 # STEP 3
 # Create US born column sparse matrix
 ntvmat <- sparseMatrix(
-  i = as.integer(ntv$surname),
-  j = rep(1,nrow(ntv)),
-  x = as.integer(ntv$freq),
+  i = as.integer(ntv$surname[!is.na(ntv$surname)]),
+  j = rep(1, sum(!is.na(ntv$surname))),
+  x = as.integer(ntv$freq[!is.na(ntv$surname)]),
   dims = c(M,1))
 rownames(ntvmat) <- surnames
 colnames(ntvmat) <- "US"
 
-# # Create US terr column sparse matrix
-# terrmat <- sparseMatrix(
-#   i = as.integer(terr$surname[!is.na(terr$surname)]),
-#   j = rep(1,sum(!is.na(terr$surname))),
-#   x = as.integer(terr$freq[!is.na(terr$surname)]),
-#   dims = c(M,1))
-# rownames(terrmat) = surnames
-# colnames(terrmat) = "US Territory"
+# Create US terr column sparse matrix
+terrmat <- sparseMatrix(
+  i = as.integer(terr$surname),
+  j = rep(1, nrow(terr)),
+  x = as.integer(terr$freq),
+  dims = c(M,1))
+rownames(terrmat) = surnames
+colnames(terrmat) = "US Territory"
 
 # Create foreign born column sparse matrix
 fbmat <- sparseMatrix(
   i = as.integer(fb$surname),
-  j = rep(1,nrow(fb)),
+  j = rep(1, nrow(fb)),
   x = as.integer(fb$freq),
   dims = c(M,1))
 rownames(fbmat) = surnames
@@ -96,7 +96,7 @@ colnames(cntrmat) = countrynames
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
-cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1], FUN="/")      # Originally divided by fbmat[, 1] + terr[, 1]
+cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")       
 gc()                                                                    
 
 

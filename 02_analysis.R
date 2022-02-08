@@ -10,8 +10,6 @@ setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this
 # Load in the data
 load(file="data/AllData.Rdata")
 
-cntrmatprop[is.na(cntrmatprop)] <- 0
-
 # Create a function to get the numbers of a certain country origin
 constructCountryNameList <- function(countrycode){
   counts <- cntrmat[, which(countrynames == countrycode)]
@@ -46,10 +44,7 @@ for (i in 1:N){
 }
 
 # Save the file just in case
-tmp <- fb_estimates
-tmp[,1] <- round(100*tmp[, 1], 1)
-tmp <- tmp[order(tmp[, 3], decreasing=TRUE), ]
-write.csv(tmp, file="data/ForeignBornAmongExclusiveSurnames2.csv")
+write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames2.csv")
 
 # Rotate all matrices to match with the method doc
 cntrmat <- t(cntrmat)
