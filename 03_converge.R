@@ -13,6 +13,7 @@ load(file="data/AllData2.Rdata")
 # STEP 2
 # Transform the first variable of fb_estimate into a vector of Phi trigger values
 phi <- fb_estimates[[1]]
+phi[15] <- 0.01
 
 # Create the empty Pi matrix
 Pi <- matrix(NA, nrow = N, ncol = M)
@@ -40,13 +41,15 @@ for (i in 1:N) {
 Pi_old <- Pi
 phi_old <- phi
 
-eps <- 1e-2              # Consider how big this loop is, I think it makes sense to 
-diff <- 100              # just look at 0.01 level difference
+eps1 <- 1e-1              
+diff1 <- 100             
+eps2 <- 1e+2
+diff2 <- 10000
 
 # Run the actual convergence
-while (diff > eps) {
+while (diff1 > eps1 | diff2 > eps2) {
   for (i in 1:N) {
-    for(j in 1:M) {
+    for(j in 1:305) {
       Pi[i,j] <- Y[i,j] / phi_old[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi_old))
     }
   }
@@ -56,7 +59,11 @@ while (diff > eps) {
     phi[i] <- mean(Y[i, index_i] / Pi[i, index_i])
   }
   
-  diff <- max(max(abs(phi - phi_old)), max(abs(Pi - Pi_old)))
+  diff1 <- max(abs(phi - phi_old))
+  print(diff1)
+  diff2 <- max(abs(Pi - Pi_old))
+  print(diff2)
+  
   Pi_old <- Pi
   phi_old <- phi
 }
