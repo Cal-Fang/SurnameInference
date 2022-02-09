@@ -1,5 +1,5 @@
 # Clear out the history
-rm(list = ls())
+rm(list=ls())
 
 # Read in the packages needed
 library(tidyverse)
