@@ -1,5 +1,5 @@
 # Clear out the history
-rm(list = ls())
+rm(list=ls())
 
 # Read in the packages needed
 library(Matrix)
@@ -38,8 +38,14 @@ cntr <- cntr %>%
 
 # STEP 2 
 # Create vector of unique surnames and update factor levels for all objects
-surnames <- sort(union(fb$surname, terr$surname))      # Just in case there were names in US territories 
-M <- length(surnames)                                  # identified as exclusive to the 19 asian countries 
+# We would only care if at least one person with that surname was from the 15 Asian countries
+asia <- cntr %>%
+  filter(new_code != "Other") %>% 
+  group_by(surname) %>% 
+  summarise(t_asia = sum(freq)) %>% 
+  filter(t_asia > 0) 
+surnames <- sort(asia$surname)       
+M <- length(surnames)                                  
 
 cntr$surname <- factor(cntr$surname, levels=surnames)
 fb$surname <- factor(fb$surname, levels=surnames)
@@ -66,23 +72,25 @@ colnames(ntvmat) <- "US"
 
 # Create US terr column sparse matrix
 terrmat <- sparseMatrix(
-  i = as.integer(terr$surname),
-  j = rep(1, nrow(terr)),
-  x = as.integer(terr$freq),
+  i = as.integer(terr$surname[!is.na(terr$surname)]),
+  j = rep(1, sum(!is.na(terr$surname))),
+  x = as.integer(terr$freq[!is.na(terr$surname)]),
   dims = c(M,1))
 rownames(terrmat) = surnames
 colnames(terrmat) = "US Territory"
 
 # Create foreign born column sparse matrix
 fbmat <- sparseMatrix(
-  i = as.integer(fb$surname),
-  j = rep(1, nrow(fb)),
-  x = as.integer(fb$freq),
+  i = as.integer(fb$surname[!is.na(fb$surname)]),
+  j = rep(1, sum(!is.na(fb$surname))),
+  x = as.integer(fb$freq[!is.na(fb$surname)]),
   dims = c(M,1))
 rownames(fbmat) = surnames
 colnames(fbmat) = "Foreign"
 
 # Create M by N sparse matrix
+cntr <- cntr %>%
+ filter(!is.na(surname))
 cntrmat <- sparseMatrix(
   i = as.integer(cntr$surname),
   j = as.integer(cntr$new_code),
@@ -96,8 +104,8 @@ colnames(cntrmat) = countrynames
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
-cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")       
-gc()                                                                    
+cntrmatprop <- sweep(cntrmat, 1, fbmat[, 1] + terrmat[, 1], FUN="/")       # Just in case there were names in US territories
+gc()                                                                       # identified as exclusive to the 19 asian countries 
 
 
 # STEP 4
