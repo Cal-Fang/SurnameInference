@@ -48,8 +48,8 @@ write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
 
 # Rotate all matrices to match with the method doc
 cntrmat <- t(cntrmat)
-cntrmatprop <- t(cntrmatprop)
-fbmat <- t(fbmat)
+# cntrmatprop <- t(cntrmatprop)
+# fbmat <- t(fbmat)
 ntvmat <- t(ntvmat)
 # terrmat <- t(terrmat)
 # denommat <- t(denommat)
