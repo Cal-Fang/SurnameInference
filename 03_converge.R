@@ -49,7 +49,7 @@ diff2 <- 10000
 # Run the actual convergence
 while (diff1 > eps1 | diff2 > eps2) {
   for (i in 1:N) {
-    for(j in 1:305) {
+    for (j in 1:305) {
       Pi[i,j] <- Y[i,j] / phi_old[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi_old))
     }
   }

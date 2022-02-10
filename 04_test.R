@@ -35,6 +35,7 @@ Pi <- matrix(NA, nrow = N, ncol = 305)
 Y <- cntrmat[, index]
 Y0 <- ntvmat[1, index]
 
+
 # Calculate the first round value
 for (i in 1:N) {
   for(j in 1:305) {
@@ -42,8 +43,6 @@ for (i in 1:N) {
   }
 }
 
-
-Pi[Pi == 0] <- 0.0001
 
 for (i in 1:N) {
   index_i <- which(Y[i,] > 0)
@@ -63,7 +62,7 @@ diff2 <- 10000
 # Run the actual convergence
 while (diff1 > eps1 | diff2 > eps2) {
   for (i in 1:N) {
-    for(j in 1:305) {
+    for (j in 1:305) {
       Pi[i,j] <- Y[i,j] / phi_old[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi_old))
     }
   }
@@ -82,4 +81,29 @@ while (diff1 > eps1 | diff2 > eps2) {
   phi_old <- phi
 }
 
-write_csv(Pi, "data/Pi.csv")
+
+
+# lapply
+for (i in 1:N) {
+  for (j in 1:305) {
+    Pi[i,j] <- Y[i,j] / phi_old[i] * (Y0[j] + sum(Y[,j])) / (sum(Y[,j] / phi_old))
+  }
+}
+
+for (i in 1:N) {
+  index_i <- which(Y[i,] > 0)
+  phi[i] <- mean(Y[i, index_i] / Pi[i, index_i])
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
