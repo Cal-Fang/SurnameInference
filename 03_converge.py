@@ -1,5 +1,8 @@
-import pyreadr
 import os
+
+
+import sys
+sys.executable
 
 os.getcwd()
 ("~/Box Sync/Name Identification Project/US Names")
