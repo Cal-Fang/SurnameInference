@@ -23,6 +23,18 @@ Pi_new <- matrix(NA, nrow = N, ncol = 305)
 Y <- cntrmat[, index]
 Y0 <- ntvmat[1, index]
 
+for (i in 1:N) {
+  for (j in 1:305) {
+    Pi_new[i,j] <- Y[i,j] + Y0[j] * Pi[i, j] / sum(Pi[, j])
+    # Pi_new_deno <- sum(Y) + sum(Y0) * Pi[i, j] / sum(Pi[, j])
+  }
+}
+
+Pi_new <- Pi_new / sum(Pi_new)
+diff <- max(abs(Pi_new - Pi))
+
+Pi <- Pi_new
+
 while (diff > 1e-5) {
   for (i in 1:N) {
     for (j in 1:305) {
