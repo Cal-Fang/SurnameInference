@@ -11,16 +11,6 @@ setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this
 load(file="data/AllData2.Rdata")
 
 # STEP 2
-# set.seed(1000)
-# index <- sample(1:M, 300, replace=FALSE)
-# BT <- sample(which(cntrmat["BT", ] > 0), 3, replace=FALSE)
-# MV <- sample(which(cntrmat["MV", ] > 0), 2, replace=FALSE)
-# index <- sort(c(index, BT, MV))
-# 
-# Y <- cntrmat[, index]
-# Y0 <- ntvmat[1, index]
-
-# STEP 3 
 # Make a function
 run_EM <- function(M, N, Y, Y0){
   Pi <- matrix(1/(M*N), nrow = N, ncol = M)
@@ -56,9 +46,15 @@ run_EM <- function(M, N, Y, Y0){
   return(Pi_new)
 }
 
-# STEP 4
-# Run on the dataset without US oversea terrtories data
+# STEP 3
+# Run on the dataset without US oversea territories data
 result <- run_EM(M, N, cntrmat, ntvmat)
 write.csv(result, "data/result_noUSO.csv")
+
+# STEP 4
+# Run on the dataset with US oversea territories data
+load(file="data/AllData3.Rdata")
+result <- run_EM(M, N2, cntrmat_withUSO, ntvmat)
+write.csv(result, "data/result_withUSO.csv")
 
 
