@@ -44,10 +44,11 @@ for (i in 1:N){
 }
 
 # Save the file just in case
-write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
+# write.csv(fb_estimates, file="data/ForeignBornAmongExclusiveSurnames.csv")
 
-# Rotate all matrices to match with the method doc
+# Rotate all matrices needed for further analysis to match with common sense
 cntrmat <- t(cntrmat)
+cntrmat_withUSO <- t(cntrmat_withUSO)
 # cntrmatprop <- t(cntrmatprop)
 # fbmat <- t(fbmat)
 ntvmat <- t(ntvmat)
@@ -61,3 +62,9 @@ save(cntrmat, ntvmat,
      countrynames, N,
      fb_estimates,
      file="data/AllData2.Rdata")
+save(cntrmat_withUSO, ntvmat, 
+     # cntrmatprop, fbmat, 
+     surnames, M,
+     countrynames2, N2,
+     fb_estimates,
+     file="data/AllData3.Rdata")
