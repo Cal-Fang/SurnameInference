@@ -22,11 +22,6 @@ fb <- cntr %>%
   group_by(surname) %>% 
   summarise(freq = sum(freq))
 
-# Take oversea territories as a foreign county
-# To make sure that we get the correct number for people originating from Philippines
-terr$country <- "USO"
-# cntr <- rbind(cntr, terr)
-
 # Apply the data cleaning result onto the cntr dataset to obtain the new_code variable
 code_replace <- read_csv("data/code_replace.csv")
 
@@ -47,10 +42,8 @@ M <- length(surnames)
 
 cntr$surname <- factor(cntr$surname, levels=surnames)
 fb$surname <- factor(fb$surname, levels=surnames)
-
 ntv$surname <- factor(ntv$surname, levels=surnames)
 terr$surname <- factor(terr$surname, levels=surnames)
-# us$surname <- factor(us$surname, levels=surnames)
 
 # Create vector of country codes 
 countrynames <- sort(unique(cntr$new_code))
@@ -75,7 +68,7 @@ terrmat <- sparseMatrix(
   x = as.integer(terr$freq[!is.na(terr$surname)]),
   dims = c(M,1))
 rownames(terrmat) = surnames
-colnames(terrmat) = "US Territory"
+colnames(terrmat) = "USO"
 
 # Create foreign born column sparse matrix
 fbmat <- sparseMatrix(
@@ -97,8 +90,11 @@ cntrmat <- sparseMatrix(
 rownames(cntrmat) = surnames
 colnames(cntrmat) = countrynames
 
-# Combine US, Terr, and Foreign matrices
-# denommat <- cbind(ntvmat, terrmat, fbmat)
+# Take oversea territories as a foreign county
+# To prepare a matrix with territories data for experimental run
+cntrmat_withUSO <- cbind(cntrmat, terrmat)
+countrynames2 <- append(countrynames, "USO")
+N2 <- N + 1
 
 # Create country proportion matrix
 gc()    # following command requires ~ 12GB working memory
@@ -108,11 +104,11 @@ gc()                                                                       # ide
 
 # STEP 4
 # Save objects
-save(cntrmat, cntrmatprop, 
-     # terrmat, denommat,
+save(cntrmat, cntrmat_withUSO,
+     cntrmatprop, terrmat, # denommat,
      fbmat, ntvmat,
      surnames, M,
-     countrynames, N,
+     countrynames, N, countrynames2, N2,
      file="data/AllData.Rdata")
 
 # Random tests
