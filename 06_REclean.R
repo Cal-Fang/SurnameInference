@@ -56,6 +56,7 @@ fb_terr_ntv <- fb %>%
   merge(terr, by="surname", all=TRUE) %>% 
   merge(ntv, by="surname", all=TRUE)
 fb_terr_ntv$sum_freq <- rowSums(fb_terr_ntv[,-1], na.rm=TRUE)
+fb_terr_ntv$us_prop <- fb_terr_ntv$freq.x / fb_terr_ntv$sum_freq
 
 ggplot(fb_terr_ntv, aes(x=sum_freq)) +
   geom_bar() +
@@ -63,16 +64,18 @@ ggplot(fb_terr_ntv, aes(x=sum_freq)) +
 sum(fb_terr_ntv$sum_freq >= 10) / nrow(fb_terr_ntv)
 
 p3_df4 <- p3_df3 %>% 
-  merge(fb_terr_ntv[c("surname", "sum_freq")], all.x=TRUE) %>% 
+  merge(fb_terr_ntv[c("surname", "sum_freq", "us_prop")], all.x=TRUE) %>% 
   filter(sum_freq >= 20) 
 
+
 # To help better observe the outcome 
-# Make all smallest numbers 0
+# Take out the country codes of all the biggest possibility value
 p3_df4 <- p3_df4 %>% 
   mutate(maxcntr_list = lapply(apply(p3_df4[2:21], 1, function(x) which(x == max(x))), names)) %>% 
   mutate(maxcntr = unlist(lapply(maxcntr_list, paste, collapse=" & "))) %>% 
   select(-"maxcntr_list")
-# Take out the country codes of all the biggest possibility value
+# Make all smallest numbers 0
 p3_df4[2:21] <- t(apply(p3_df4[2:21], 1, function(x) 
   replace(x, x == min(x), 0)))
 
+write_csv(p3_df4, "data/p3_df4.csv")
