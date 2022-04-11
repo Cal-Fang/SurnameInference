@@ -1,3 +1,6 @@
+# Clear out the history
+rm(list=ls())
+
 # Read in the packages needed
 library(Matrix)
 library(tidyverse)
