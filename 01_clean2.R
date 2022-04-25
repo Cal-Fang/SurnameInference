@@ -5,7 +5,7 @@ rm(list=ls())
 library(Matrix)
 library(tidyverse)
 
-# Set working directory and load in the Rdata file generated from analysis script
+# Set working directory
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 # STEP 1
@@ -64,10 +64,9 @@ fb_terr_ntv$us_prop <- fb_terr_ntv$freq.x / fb_terr_ntv$sum_freq
 
 fb_terr_ntv2 <- filter(fb_terr_ntv, sum_freq>50)
 
-
 # STEP 3
-# Filter out all surnames of which the total frequency of the 19 Asian countries is 0
-# Apply the data cleaning result onto the cntr dataset to obtain the new_code variable
+# Filter out all surnames of which the total frequency of the 19 Asian countries is 
+# smaller or equal to 10
 code_replace <- read_csv("data/code_replace.csv")
 
 cntr <- cntr %>% 
@@ -86,38 +85,39 @@ fb_terr_ntv3 <- filter(fb_terr_ntv2, surname %in% asiansurnames)
 
 # STEP 4
 # Filter out the surnames of which the "Other" category is the most frequent origin
-cntr$surname <- factor(cntr$surname, levels=sort(unique(fb_terr_ntv3$surname)))
-cntr$country <- factor(cntr$new_code, levels=sort(unique(cntr$new_code)))
-cntr <- cntr %>%
+cntr0 <- cntr
+cntr0$surname <- factor(cntr0$surname, levels=sort(unique(fb_terr_ntv3$surname)))
+cntr0$country <- factor(cntr0$new_code, levels=sort(unique(cntr0$new_code)))
+cntr0 <- cntr0 %>%
   filter(!is.na(surname))
-cntrmat <- sparseMatrix(
-  i = as.integer(cntr$surname),
-  j = as.integer(cntr$country),
-  x = as.integer(cntr$freq),
+cntr0mat <- sparseMatrix(
+  i = as.integer(cntr0$surname),
+  j = as.integer(cntr0$country),
+  x = as.integer(cntr0$freq),
   dims = c(length(fb_terr_ntv3$surname), 20))
-rownames(cntrmat) = sort(unique(fb_terr_ntv3$surname))
-colnames(cntrmat) = sort(unique(cntr$new_code))
+rownames(cntr0mat) = sort(unique(fb_terr_ntv3$surname))
+colnames(cntr0mat) = sort(unique(cntr0$new_code))
 
-asianmax <- as.data.frame(as.matrix(cntrmat)) %>% 
-  mutate(largest = apply(cntrmat, 1, max, na.rm = TRUE),
-         surname = rownames(cntrmat)) %>% 
+asianmax <- as.data.frame(as.matrix(cntr0mat)) %>% 
+  mutate(largest = apply(cntr0mat, 1, max, na.rm = TRUE),
+         surname = rownames(cntr0mat)) %>% 
   filter(!(Other == largest))
+
 fb_terr_ntv4 <- filter(fb_terr_ntv3, surname %in% asianmax$surname)
 
-# jp <- asianmax %>% 
-#   filter(largest == JA)
+# STEP 5
+# Recover the surnames to the 12 digits form
+surnames <- gsub("\\s", " ", format(fb_terr_ntv4$surname, width=12))
+# Save objects
+save(cntr, ntv,
+     surnames, 
+     file="data/Clean2Data.Rdata")
 
-jp2 <- asianmax %>% 
-  filter(largest == JA)
 
-# # To help better observe the outcome 
-# # Take out the country codes of all the biggest possibility value
-# p3_df4 <- p3_df4 %>% 
-#   mutate(maxcntr_list = lapply(apply(p3_df4[2:21], 1, function(x) which(x == max(x))), names)) %>% 
-#   mutate(maxcntr = unlist(lapply(maxcntr_list, paste, collapse=" & "))) %>% 
-#   select(-"maxcntr_list")
-# # Make all smallest numbers 0
-# p3_df4[2:21] <- t(apply(p3_df4[2:21], 1, function(x) 
-#   replace(x, x == min(x), 0)))
-# 
-# write_csv(p3_df4, "data/p3_df4.csv")
+# countrynames <- unique(code_replace$new_code)
+# for (i in countrynames) {
+#   total <- sum(asianmax$largest == asianmax[i])
+#   
+#   print(i)
+#   print(total)
+# }

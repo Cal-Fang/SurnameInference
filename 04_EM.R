@@ -5,20 +5,22 @@ rm(list=ls())
 library(Matrix)
 library(tidyverse)
 
-# STEP 1
-# Set working directory and load in the Rdata file generated from analysis script
+# Set working directory
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
-load(file="data/AllData2.Rdata")
+
+# STEP 1
+# Load in the Rdata file generated from analysis script
+load(file="data/PrepData.Rdata")
 
 # STEP 2
 # Make a function
-run_EM <- function(M, N, Y, Y0){
+run_EM <- function(M, N, Y, Y0, critv){
   Pi <- matrix(1/(M*N), nrow = N, ncol = M)
   Pi_new <- matrix(NA, nrow = N, ncol = M)
   
   for (i in 1:N) {
     for (j in 1:M) {
-      Pi_new[i,j] <- Y[i,j] + Y0[j] * Pi[i, j] / sum(Pi[, j])
+      Pi_new[i, j] <- Y[i, j] + Y0[j] * Pi[i, j] / sum(Pi[, j])
       # Pi_new_deno <- sum(Y) + sum(Y0) * Pi[i, j] / sum(Pi[, j])
     }
   }
@@ -28,7 +30,7 @@ run_EM <- function(M, N, Y, Y0){
   
   Pi <- Pi_new
   
-  while (diff > 1e-4) {
+  while (diff > critv) {
     for (i in 1:N) {
       for (j in 1:M) {
         Pi_new[i,j] <- Y[i,j] + Y0[j] * Pi[i, j] / sum(Pi[, j])
@@ -38,6 +40,8 @@ run_EM <- function(M, N, Y, Y0){
     
     Pi_new <- Pi_new / sum(Pi_new)
     diff <- max(abs(Pi_new - Pi))
+    
+    print(diff)
     
     Pi <- Pi_new
   }
@@ -84,8 +88,25 @@ run_EM <- function(M, N, Y, Y0){
 result3 <- run_EM(M, N, cntrmat, ntvmat, 1e-3)
 result4 <- run_EM(M, N, cntrmat, ntvmat, 1e-4)
 
+# Check the probabilistic form
+result3_p <- t(t(result3)/colSums(result3))
+colnames(result3_p) <- surnames
+rownames(result3_p) <- countrynames
+
+result4_p <- t(t(result4)/colSums(result4))
+colnames(result4_p) <- surnames
+rownames(result4_p) <- countrynames
+
 # Save the results
-save(result3,
+save(result3, result3_p,
      surnames, M,
      countrynames, N,
      file="data/result_1e-3.Rdata")
+save(result4, result4_p,
+     surnames, M,
+     countrynames, N,
+     file="data/result_1e-3.Rdata")
+
+# result4p_df <- as.data.frame(t(result4_p))
+# result4p_df <- round(result4p_df, 3)
+# write.csv(result4p_df, "data/result4p_df.csv")
