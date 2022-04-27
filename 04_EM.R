@@ -105,7 +105,7 @@ save(result3, result3_p,
 save(result4, result4_p,
      surnames, M,
      countrynames, N,
-     file="data/result_1e-3.Rdata")
+     file="data/result_1e-4.Rdata")
 
 # result4p_df <- as.data.frame(t(result4_p))
 # result4p_df <- round(result4p_df, 3)
