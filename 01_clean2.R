@@ -17,6 +17,10 @@ fb <- cntr %>%
   group_by(surname) %>% 
   summarise(freq = sum(freq))
 
+save(cntr, terr, ntv, fb,
+     file="data/OriginalData.Rdata")
+load(file="data/OriginalData.Rdata")
+
 # Drop all records that actually have no surname
 noname <- c("NO NAME     ", "NO GIVEN NAM", "NO LAST NAME", "NO NAME GIVE")
 
@@ -54,8 +58,8 @@ fb_terr_ntv <- fb %>%
 
 # STEP 2
 # Filter out all surnames of which the total frequency is not bigger than 50
-fb_terr_ntv$sum_freq <- rowSums(fb_terr_ntv[,-1], na.rm=TRUE)
-fb_terr_ntv$us_prop <- fb_terr_ntv$freq.x / fb_terr_ntv$sum_freq
+fb_terr_ntv$sum_freq <- rowSums(fb_terr_ntv[, -1], na.rm=TRUE)
+fb_terr_ntv$fb_prop <- fb_terr_ntv$freq.x / fb_terr_ntv$sum_freq
 
 # ggplot(fb_terr_ntv, aes(x=sum_freq)) +
 #   geom_bar() +
@@ -104,6 +108,9 @@ asianmax <- as.data.frame(as.matrix(cntr0mat)) %>%
   filter(!(Other == largest))
 
 fb_terr_ntv4 <- filter(fb_terr_ntv3, surname %in% asianmax$surname)
+
+
+fb_terr_ntv4.1 <- filter(fb_terr_ntv4, fb_prop>0.05)
 
 # STEP 5
 # Recover the surnames to the 12 digits form
