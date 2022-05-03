@@ -9,16 +9,16 @@ library(tidyverse)
 setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
 
 # STEP 1
-cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
-terr <- read.fwf("data/srnmterr.txt", c(12,8), col.names=c("surname","freq"))
-ntv <- read.fwf("data/srnmntv.txt", c(12,8), col.names=c("surname","freq"))
-fb <- cntr %>% 
-  filter(freq > 2) %>% 
-  group_by(surname) %>% 
-  summarise(freq = sum(freq))
-
-save(cntr, terr, ntv, fb,
-     file="data/OriginalData.Rdata")
+# cntr <- read.fwf("data/srnmcntr.txt", c(12,2,6), col.names=c("surname","country","freq"), na.strings = c())
+# terr <- read.fwf("data/srnmterr.txt", c(12,8), col.names=c("surname","freq"))
+# ntv <- read.fwf("data/srnmntv.txt", c(12,8), col.names=c("surname","freq"))
+# fb <- cntr %>% 
+#   filter(freq > 2) %>% 
+#   group_by(surname) %>% 
+#   summarise(freq = sum(freq))
+# 
+# save(cntr, terr, ntv, fb,
+#      file="data/OriginalData.Rdata")
 load(file="data/OriginalData.Rdata")
 
 # Drop all records that actually have no surname
@@ -103,18 +103,19 @@ rownames(cntr0mat) = sort(unique(fb_terr_ntv3$surname))
 colnames(cntr0mat) = sort(unique(cntr0$new_code))
 
 asianmax <- as.data.frame(as.matrix(cntr0mat)) %>% 
-  mutate(largest = apply(cntr0mat, 1, max, na.rm = TRUE),
+  mutate(largest = apply(cntr0mat, 1, max, na.rm=TRUE),
          surname = rownames(cntr0mat)) %>% 
   filter(!(Other == largest))
 
 fb_terr_ntv4 <- filter(fb_terr_ntv3, surname %in% asianmax$surname)
 
-
-fb_terr_ntv4.1 <- filter(fb_terr_ntv4, fb_prop>0.05)
-
 # STEP 5
+# Filter out all surnames of which the foreign born records were less than 5% of the total population living in America
+fb_terr_ntv5 <- filter(fb_terr_ntv4, fb_prop>0.05)
+
+# STEP 6
 # Recover the surnames to the 12 digits form
-surnames <- gsub("\\s", " ", format(fb_terr_ntv4$surname, width=12))
+surnames <- gsub("\\s", " ", format(fb_terr_ntv5$surname, width=12))
 # Save objects
 save(cntr, ntv,
      surnames, 

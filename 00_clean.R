@@ -156,7 +156,7 @@ TestCountryCombn <- function(code_list, df=cntr_census){
     # Get the name only in the country(s) to be tested
     unique_surname <- setdiff(tmp_surname, rest_surname)
     
-    # Generate a summary fir this test unit
+    # Generate a summary for this test unit
     unique_summary <- df_tmp %>% 
       mutate(unique = ifelse(surname %in% unique_surname, TRUE, FALSE)) %>% 
       summarise(freqSum = sum(freq[unique == TRUE]),
@@ -173,7 +173,7 @@ TestCountryCombn <- function(code_list, df=cntr_census){
 }
 
 # Test on the five potential combination lists
-# test1 <- c("BX", "ID")
+# test1 <- c("BX", "ID", "MV")
 # result1 <- TestCountryCombn(test1)
 # 
 # test2 <- c("ID", "MY", "RP")
