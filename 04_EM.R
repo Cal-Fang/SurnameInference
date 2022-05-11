@@ -87,6 +87,7 @@ run_EM <- function(M, N, Y, Y0, critv){
 # Generate new result datasets with smaller threshold
 result3 <- run_EM(M, N, cntrmat, ntvmat, 1e-3)
 result4 <- run_EM(M, N, cntrmat, ntvmat, 1e-4)
+result5 <- run_EM(M, N, cntrmat, ntvmat, 1e-5)
 
 # Check the probabilistic form
 result3_p <- t(t(result3)/colSums(result3))
@@ -97,6 +98,10 @@ result4_p <- t(t(result4)/colSums(result4))
 colnames(result4_p) <- surnames
 rownames(result4_p) <- countrynames
 
+result5_p <- t(t(result5)/colSums(result5))
+colnames(result5_p) <- surnames
+rownames(result5_p) <- countrynames
+
 # Save the results
 save(result3, result3_p,
      surnames, M,
@@ -106,6 +111,10 @@ save(result4, result4_p,
      surnames, M,
      countrynames, N,
      file="data/result_1e-4.Rdata")
+save(result5, result5_p,
+     surnames, M,
+     countrynames, N,
+     file="data/result_1e-5.Rdata")
 
 # result4p_df <- as.data.frame(t(result4_p))
 # result4p_df <- round(result4p_df, 3)
