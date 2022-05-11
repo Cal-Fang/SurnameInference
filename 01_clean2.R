@@ -88,7 +88,7 @@ asiansurnames <- sort(asia$surname)
 fb_terr_ntv3 <- filter(fb_terr_ntv2, surname %in% asiansurnames)
 
 # STEP 4
-# Filter out the surnames of which the "Other" category is the most frequent origin
+# Filter out the surnames of which the "Other" category is more than the sum of other countries
 cntr0 <- cntr
 cntr0$surname <- factor(cntr0$surname, levels=sort(unique(fb_terr_ntv3$surname)))
 cntr0$country <- factor(cntr0$new_code, levels=sort(unique(cntr0$new_code)))
@@ -102,12 +102,12 @@ cntr0mat <- sparseMatrix(
 rownames(cntr0mat) = sort(unique(fb_terr_ntv3$surname))
 colnames(cntr0mat) = sort(unique(cntr0$new_code))
 
-asianmax <- as.data.frame(as.matrix(cntr0mat)) %>% 
-  mutate(largest = apply(cntr0mat, 1, max, na.rm=TRUE),
-         surname = rownames(cntr0mat)) %>% 
-  filter(!(Other == largest))
+asiansum <- as.data.frame(as.matrix(cntr0mat)) %>% 
+  mutate(sum_asian = apply(cntr0mat[, -15], 1, sum, na.rm=TRUE),
+         surname = rownames(cntr0mat)) %>%
+  filter(sum_asian > Other)
 
-fb_terr_ntv4 <- filter(fb_terr_ntv3, surname %in% asianmax$surname)
+fb_terr_ntv4 <- filter(fb_terr_ntv3, surname %in% asiansum$surname)
 
 # STEP 5
 # Filter out all surnames of which the foreign born records were less than 5% of the total population living in America
