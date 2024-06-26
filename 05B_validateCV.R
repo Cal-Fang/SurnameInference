@@ -1,8 +1,8 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##
-## Script name: 
+## Script name: 05B_validateCV.R
 ##
-## Purpose of script: 
+## Purpose of script: To validate the determList through cross-validation.
 ##
 ## Author: Cal Chengqi Fang
 ##

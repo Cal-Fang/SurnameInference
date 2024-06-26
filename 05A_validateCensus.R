@@ -2,7 +2,7 @@
 ##
 ## Script name: 05A_validateCensus.R
 ##
-## Purpose of script: To validate the results with census data.
+## Purpose of script: To validate the determList with census data.
 ##
 ## Author: Cal Chengqi Fang
 ##
