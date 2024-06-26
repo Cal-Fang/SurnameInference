@@ -1,0 +1,253 @@
+---
+title: 'Name Method: tables for the manuscript'
+author: "Cal Chengqi Fang"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document: 
+    keep_tex: TRUE
+classoption: landscape
+header-includes:
+  - \usepackage{float}
+knit: >
+  (function(inputFile, encoding){
+    rmarkdown::render(inputFile, encoding=encoding, output_file="results/tables/manuscriptTables.pdf")
+  })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, 
+                      message=FALSE,
+                      warning=FALSE)
+
+require(tidyverse)
+require(data.table)
+
+require(knitr)      # For generating nice and organized results
+require(kableExtra) # For generating nice and organized results
+```
+
+```{r data}
+# Load the formatted matrices
+load(file="data/interm/formatted.Rdata")
+
+# Collapse matrices back to summary dataframe
+cntrmat_triplet <- as(cntrmat, "TsparseMatrix")
+cntr <- data.frame(area = rownames(cntrmat)[cntrmat_triplet@i + 1],
+                   surname = colnames(cntrmat)[cntrmat_triplet@j + 1],
+                   freq = cntrmat_triplet@x)
+
+ntvmat_triplet <- as(ntvmat, "TsparseMatrix")
+ntv <- data.frame(area = rownames(ntvmat)[ntvmat_triplet@i + 1],
+                  surname = colnames(ntvmat)[ntvmat_triplet@j + 1],
+                  freq = ntvmat_triplet@x)
+
+# Load the reportable lists
+load(file="data/interm/resultRep.Rdata")
+
+# Load the validation summary with the Census list
+load("data/interm/validateCensus.Rdata")
+
+# Load the validation summary through cross-validation
+load("data/interm/validateCV.Rdata")
+```
+
+```{r prep}
+# Create a lookup table
+codeLookup <- data.frame(code = c("AF", "BIA", "BM", "BT", "CB", 
+                                  "CE", 
+                                  "GCA", 
+                                  "JA", "LA", "MG", "MV", 
+                                  "MY", "NP", "Other", 
+                                  "RP", "SAS", 
+                                  "SN", "TH", 
+                                  "VM", 
+                                  "XK"),
+                         name = c("Afghanistan", "Brunei, Indonesia", "Myanmar", "Bhutan", "Cambodia",
+                                  "Sri Lanka", 
+                                  "Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan", 
+                                  "Japan, Southern Ryukyu Islands", "Laos", "Mongolia", "Maldives",
+                                  "Malaysia", "Nepal", "All the other countries and regions", 
+                                  "Philippines", "Bangladesh, India, Pakistan, Sikkim, British India", 
+                                  "Singapore", "Thailand", 
+                                  "Vietnam, Democratic Republic of Vietnam, Republic of Vietnam", 
+                                  "Korea, Democratic People’s Republic of Korea, Republic of Korea"))
+
+# Write a function to replace area codes with names and sort the table
+replace_sort <- function(data, code_col, lookup=codeLookup) {
+  # Merge the data with the lookup table
+  data <- merge(data, lookup, 
+                by.x=code_col, by.y="code", all.x=TRUE)
+  
+  # Remove the original column
+  data[[code_col]] <- NULL
+  
+  # Extract the Other row
+  special_row <- data %>% 
+    filter(name == "All the other countries and regions")
+  
+  # Remove the special row from the data
+  data <- data %>% 
+    filter(name != "All the other countries and regions")
+  
+  # Sort the remaining data
+  data <- data %>% 
+    arrange(name)
+  
+  # Bind the special row at the bottom
+  data <- bind_rows(data, special_row)
+  
+  return(data)
+}
+```
+In this document, I made some tables for our manuscript to illustrate our analysis process and results.
+
+\newpage
+# Table 1. Illustrative surnames and corresponding conditional probabilities
+```{r tab1}
+nameSample <- str_pad(c("HUANG", "CHANG", "KIM", "SUZUKI", "NGUYEN", "INTHAVONG", "PENAFLOR", "ABDULJALIL"), 
+                      12, side="right")
+tab1 <- probList %>% 
+  filter(surname %in% str_pad(nameSample, 12, side="right")) %>% 
+  mutate(surname = factor(surname, levels=nameSample)) %>% 
+  arrange(surname) %>% 
+  select(-surname) %>% 
+  mutate(across(.cols=everything(), .fns=~round(.x, 4)*100)) %>% 
+  t() %>% 
+  as_tibble() %>% 
+  mutate(V9 = colnames(probList)[1:20])
+colnames(tab1) <- c(nameSample, "area")
+
+# Replace area codes with actual names
+tab1 <- replace_sort(tab1, "area") %>% 
+  select(name, nameSample)
+
+tab1 %>% 
+  kbl(col.names=c("Country/Area of origin", nameSample),
+      align="l", booktabs=TRUE) %>% 
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  add_header_above(header=c(" "=1, "Illustrative surnames[note]"=8)) %>% 
+  add_footnote("The probabilities in each column do not add up to 1 because of rounding error.",
+               notation="symbol",
+               threeparttable=TRUE)
+```
+
+\newpage
+# Table 2. Predictive surnames and related record numbers
+```{r tab2}
+tab2Area <- function(areaCode){
+  # Identify surnames associated with the corresponding areaCode
+  tab2Names <- determList %>% 
+    filter(area == areaCode)
+  
+  # Make column 1: Country/Area
+  col1 <- areaCode
+  # Make column 2: Number of highly predictive surnames
+  col2 <- nrow(tab2Names)
+  # Make column 3: Number of records in the US-born with these highly predictive surnames
+  tab2Ntv <- ntv %>% 
+    filter(surname %in% tab2Names$surname) 
+  col3 <- sum(tab2Ntv$freq)
+  # Make column 4: Number of records in the foreign-born file with these highly predictive surnames
+  tab2Cntr <- cntr %>% 
+    filter(surname %in% tab2Names$surname) 
+  col4 <- sum(tab2Cntr$freq)
+  
+  # Construct the result
+  result <- tibble(area = col1,
+                   nameNum = col2,
+                   ntvTotal = col3,
+                   cntrTotal = col4)
+}
+
+tab2 <- lapply(codeLookup$code, tab2Area) %>% 
+  data.table::rbindlist()
+
+# Replace area codes with actual names
+tab2 <- replace_sort(tab2, "area") %>% 
+  select(name, nameNum, ntvTotal, cntrTotal) %>% 
+  filter(name != "All the other countries and regions")
+
+tab2 %>% 
+  kbl(col.names=c("Country/Area of origin", "Number of predictive surnames[note]", 
+                  "Number of US-born records with corresponding predictive surnames",
+                  "Number of foreign-born records with corresponding predictive surnames"),
+      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:4, width="3cm") %>% 
+  add_footnote("The numbers do not add up to 22,621 because there are surnames that are equally predictive of more than one country/area.",
+               notation="symbol",
+               threeparttable=TRUE)
+```
+
+\newpage
+# Table 3. Validation result with ACS data
+```{r tab3}
+countrySummary <- predictSummary %>% 
+  filter(maxCntr != "Whole List") %>% 
+  rbind(c("MV", 0, NA, NA, NA))
+
+# Replace area codes with actual names
+countrySummary <- replace_sort(countrySummary, "maxCntr") %>% 
+  select(name, nameCount, PPV, Sensitivity, Specificity) %>% 
+  filter(name != "All the other countries and regions")
+
+tab3 <- predictSummary %>% 
+  filter(maxCntr == "Whole List") %>% 
+  rename(name = maxCntr) %>% 
+  rbind(countrySummary) %>% 
+  mutate(across(.cols=nameCount:Specificity, .fns=~round(as.numeric(.x), 4)*100))
+
+tab3 %>% 
+  kbl(col.names=c(" ", "Number of surnames present in both lists[note]", 
+                  "PPV (%)", "Sensitivity (%)", "Specificity (%)"),
+      align="l", booktabs=TRUE) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:5, width="3cm") %>% 
+  add_footnote("The numbers of surnames of countries/areas do not add up to 3,370 because there are surnames that are equally predictive of more than one country/area.",
+               notation="symbol",
+               threeparttable=TRUE) %>% 
+  pack_rows("", 2, 20)
+```
+
+\newpage
+# Table 4. Validation result of cross validation
+```{r tab4}
+tab4 <- cvResultsSummary %>% 
+  select(area:`Pos Pred Value`) 
+
+# Replace area codes with actual names
+tab4 <- replace_sort(tab4, "area") %>% 
+  select(name, `Pos Pred Value`, Sensitivity, Specificity) %>% 
+  filter(name != "All the other countries and regions") %>% 
+  mutate(across(.cols=`Pos Pred Value`:Specificity, .fns=~round(as.numeric(.x), 4)*100))
+
+tab4 %>% 
+  kbl(col.names=c(" ", "PPV (%)", "Sensitivity (%)", "Specificity (%)"),
+      align="l", booktabs=TRUE) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:4, width="3cm")
+```
+
+<!--
+# Table. Numbers of foreign-born records from corresponding country/area
+```{r sample tab}
+# Create sample tab to show the foreign-born frequencies
+smpTab <- cntr %>% 
+  group_by(area) %>% 
+  summarise(obs = sum(freq)) 
+
+# Replace area codes with actual names
+smpTab <- replace_sort(smpTab, "area") %>% 
+  select(name, obs)
+
+smpTab %>% 
+  kbl(col.names=c("Country/Area of birth", "Number of foreign-born records"),
+      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>% 
+  kable_styling(latex_options = c("hold_position")) %>% 
+  column_spec(1:2, width="5cm")
+```
+-->
