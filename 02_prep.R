@@ -1,18 +1,47 @@
-# Clear out the history
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##
+## Script name: 02_prep.R
+##
+## Purpose of script: To create sparse matrices for EM algorithm.
+##
+## Author: Cal Chengqi Fang
+##
+## Date Created: 2022-06-20
+##
+## Copyright (c) Cal Chengqi Fang, 2024
+## Email: cal.cf@uchicago.edu
+##
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##
+## Notes:
+##   
+##
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## set working directory for Mac and PC
+setwd("/Users/atchoo/Documents/GitHub/Name-Method-Project/")     # Cal's working directory (mac)
+# setwd("C:/Users/")     # Cal's working directory (PC)
+
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 rm(list=ls())
+options(scipen=6, digits=4)         # I prefer to view outputs in non-scientific notation
+memory.limit(30000000)                  # this is needed on some PCs to increase memory allowance, but has no impact on macs.
 
-# Read in the packages needed
-library(Matrix)
-library(tidyverse)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Set working directory
-setwd("~/Box Sync/Name Identification Project/US Names")    # Please change this to your path
+## load up the packages we will need:  (uncomment as required)
+require(tidyverse)
+require(Matrix)
 
-# STEP 1 
-# Read in the after clean2 dataset
-load(file="data/Clean2Data.Rdata")
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# STEP 2 
+# ----------------------------------------------- STEP 1 ----------------------------------------------- 
+# Read in the after clean2 dataset 
+load(file="data/interm/cleaned.Rdata")
+
+
+# ----------------------------------------------- STEP 2 ----------------------------------------------- 
 # Create vector of unique surnames and update factor levels for all objects
 # We would use the outcome of the clean2 script
 M <- length(surnames)                                  
@@ -26,7 +55,8 @@ N <- length(countrynames)
 
 cntr$new_code <- factor(cntr$new_code, levels=countrynames)
 
-# STEP 3
+
+# ----------------------------------------------- STEP 3 ----------------------------------------------- 
 # Create US born column sparse matrix
 ntvmat <- sparseMatrix(
   i = as.integer(ntv$surname[!is.na(ntv$surname)]),
@@ -44,24 +74,18 @@ cntrmat <- sparseMatrix(
   j = as.integer(cntr$new_code),
   x = as.integer(cntr$freq),
   dims = c(M, N))
-rownames(cntrmat) = surnames
-colnames(cntrmat) = countrynames
+rownames(cntrmat) <- surnames
+colnames(cntrmat) <- countrynames
 
-
-# STEP 4
 # Rotate all matrices needed for further analysis
 cntrmat <- t(cntrmat)
 ntvmat <- t(ntvmat)
+
+
+# ----------------------------------------------- STEP 4 -----------------------------------------------
 # Save objects
 save(cntrmat, ntvmat,
      surnames, M,
      countrynames, N, 
-     file="data/PrepData.Rdata")
-
-# Random tests
-# What's the matter with "Nguyen"?
-# sort(prop.table(cntrmat[which.max(rowSums(cntrmat)), ]))
-
-# What about "Lauderdale"?
-# cntrmat[grep("LAUDERDALE", surnames), ]
+     file="data/interm/formatted.Rdata")
 

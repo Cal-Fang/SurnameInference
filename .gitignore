@@ -3,9 +3,17 @@
 .Rapp.history
 
 # Session Data files
-.RData
+*.RData
+*.RDataTmp
+
+# Raw Data files (stored in .dta and .csv format)
+*.dta
+*.csv
+*.xlsx
+*.txt
 
 # User-specific files
+*.Rproj
 .Ruserdata
 
 # Example code in package build process
@@ -37,3 +45,22 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# pkgdown site
+docs/
+
+# translation temp files
+po/*~
+
+# RStudio Connect folder
+rsconnect/
+
+# temp folder for experiment files
+temp/
+
+# data folder
+data/
+
+# Strange mac document file
+.DS_Store
+
