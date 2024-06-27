@@ -232,8 +232,8 @@ tab4 %>%
   column_spec(2:4, width="3cm")
 ```
 
-<!--
-# Table. Numbers of foreign-born records from corresponding country/area
+\newpage
+# Sample Table. Numbers of foreign-born records from corresponding country/area - Leftout
 ```{r sample tab}
 # Create sample tab to show the foreign-born frequencies
 smpTab <- cntr %>% 
@@ -250,4 +250,3 @@ smpTab %>%
   kable_styling(latex_options = c("hold_position")) %>% 
   column_spec(1:2, width="5cm")
 ```
--->
