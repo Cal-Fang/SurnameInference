@@ -63,16 +63,16 @@ determList <- probList %>%
 # ----------------------------------------------- STEP 4 ----------------------------------------------- 
 # Examine the numbers of surname highly predictive of Asian descent
 cat("The number of name highly predictive of Asian descendant:", 
-    sum(probList$Other < 0.4),
+    sum(probList$Other <= 0.4),
     "\nThe number of name relatively predictive of Asian descendant:", 
-    sum(probList$Other < 0.5))
+    sum(probList$Other <= 0.5))
 
 # Further examine to make sure there is no non-Asian surname in deterministic list
 nonAsian <- probList %>% 
-  filter(Other >= 0.5)
+  filter(Other > 0.5)
 
 lessAsian <- probList %>% 
-  filter(Other >= 0.4)
+  filter(Other > 0.4)
 
 # Check what countries these less-Asian surnames are highly predictive of
 inspect <- determList %>% 
