@@ -104,7 +104,7 @@ In this document, I made some tables for our manuscript to illustrate our analys
 \newpage
 # Table 1. Illustrative surnames and corresponding conditional probabilities
 ```{r tab1}
-nameSample <- str_pad(c("HUANG", "CHANG", "KIM", "SUZUKI", "NGUYEN", "INTHAVONG", "PENAFLOR", "ABDULJALIL"), 
+nameSample <- str_pad(c("HUANG", "CHANG", "KIM", "SUZUKI", "NGUYEN", "INTHAVONG", "PENAFLOR", "SAMEER", "PATAN"),
                       12, side="right")
 tab1 <- probList %>% 
   filter(surname %in% str_pad(nameSample, 12, side="right")) %>% 
@@ -114,7 +114,7 @@ tab1 <- probList %>%
   mutate(across(.cols=everything(), .fns=~round(.x, 4)*100)) %>% 
   t() %>% 
   as_tibble() %>% 
-  mutate(V9 = colnames(probList)[1:20])
+  mutate(endCol = colnames(probList)[1:20])
 colnames(tab1) <- c(nameSample, "area")
 
 # Replace area codes with actual names
@@ -126,7 +126,7 @@ tab1 %>%
       align="l", booktabs=TRUE) %>% 
   kable_styling(latex_options = c("hold_position")) %>%
   column_spec(1, width="5cm") %>% 
-  add_header_above(header=c(" "=1, "Illustrative surnames[note]"=8)) %>% 
+  add_header_above(header=c(" "=1, "Illustrative surnames[note]"=9)) %>% 
   add_footnote("The probabilities in each column do not add up to 1 because of rounding error.",
                notation="symbol",
                threeparttable=TRUE)
@@ -197,7 +197,7 @@ tab3 <- predictSummary %>%
   filter(maxCntr == "Whole List") %>% 
   rename(name = maxCntr) %>% 
   rbind(countrySummary) %>% 
-  mutate(across(.cols=nameCount:Specificity, .fns=~round(as.numeric(.x), 4)*100))
+  mutate(across(.cols=PPV:Specificity, .fns=~round(as.numeric(.x), 4)*100))
 
 tab3 %>% 
   kbl(col.names=c(" ", "Number of surnames present in both lists[note]", 

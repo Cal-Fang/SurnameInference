@@ -74,8 +74,9 @@ nonAsian <- probList %>%
 lessAsian <- probList %>% 
   filter(Other >= 0.4)
 
+# Check what countries these less-Asian surnames are highly predictive of
 inspect <- determList %>% 
-  filter(surname %in% nonAsian$surname) %>% 
+  filter(surname %in% lessAsian$surname) %>% 
   group_by(area) %>% 
   summarise(count = n())
 
