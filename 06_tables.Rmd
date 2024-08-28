@@ -8,12 +8,14 @@ output:
 classoption: landscape
 header-includes:
   - \usepackage{float}
+  - \usepackage{geometry} \geometry{a3paper}
 knit: >
   (function(inputFile, encoding){
     rmarkdown::render(inputFile, encoding=encoding, output_file="results/tables/manuscriptTables.pdf")
   })
 ---
 
+ 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE, 
                       message=FALSE,
@@ -49,6 +51,9 @@ load("data/interm/validateCensus.Rdata")
 
 # Load the validation summary through cross-validation
 load("data/interm/validateCV.Rdata")
+
+# Load the validation summary with the KP cohort
+load("data/interm/validateKP.Rdata")
 ```
 
 ```{r prep}
@@ -101,10 +106,9 @@ replace_sort <- function(data, code_col, lookup=codeLookup) {
 ```
 In this document, I made some tables for our manuscript to illustrate our analysis process and results.
 
-\newpage
-# Table 1. Illustrative surnames and corresponding conditional probabilities
+# Table 1. Illustrative surnames from the Probabilistic List and the estimated probabilities of origins from each area conditional on having the corresponding surnames
 ```{r tab1}
-nameSample <- str_pad(c("HUANG", "CHANG", "KIM", "SUZUKI", "NGUYEN", "INTHAVONG", "PENAFLOR", "SAMEER", "PATAN"),
+nameSample <- str_pad(c("HUANG", "CHANG", "KIM", "SUZUKI", "NGUYEN", "INTHAVONG", "VICENCIO", "SAMEER", "PATAN"),
                       12, side="right")
 tab1 <- probList %>% 
   filter(surname %in% str_pad(nameSample, 12, side="right")) %>% 
@@ -119,21 +123,24 @@ colnames(tab1) <- c(nameSample, "area")
 
 # Replace area codes with actual names
 tab1 <- replace_sort(tab1, "area") %>% 
-  select(name, nameSample)
+  select(name, nameSample) %>% 
+  rename(`Illustrative surnames` = name)
 
 tab1 %>% 
-  kbl(col.names=c("Country/Area of origin", nameSample),
-      align="l", booktabs=TRUE) %>% 
+  t() %>% 
+  kbl(align="l", booktabs=TRUE) %>% 
   kable_styling(latex_options = c("hold_position")) %>%
-  column_spec(1, width="5cm") %>% 
-  add_header_above(header=c(" "=1, "Illustrative surnames[note]"=9)) %>% 
-  add_footnote("The probabilities in each column do not add up to 1 because of rounding error.",
+  column_spec(1, width="1.5cm") %>% 
+  column_spec(2:21, width="1.2cm") %>% 
+  add_header_above(header=c(" "=1, "Country/Area of origin[note]"=20)) %>% 
+  add_footnote("Note: This table exemplifies the Probabilistic List with some illustrative surnames. Each column represents one illustrative surname. Numbers in the row denote the probabilities of someone originating from the corresponding area conditional on having corresponding surnames. Probabilities in each row may not add up to 1 due to rounding error.",
                notation="symbol",
-               threeparttable=TRUE)
+               threeparttable=TRUE)%>%
+  kable_styling(font_size=7)
 ```
-
 \newpage
-# Table 2. Predictive surnames and related record numbers
+
+# Table 2. Numbers of surnames in the Deterministic List that are predictive for each area of origin, with the number of US-born and foreign-born SSN records having that surname
 ```{r tab2}
 tab2Area <- function(areaCode){
   # Identify surnames associated with the corresponding areaCode
@@ -176,14 +183,124 @@ tab2 %>%
   kable_styling(latex_options = c("hold_position")) %>%
   column_spec(1, width="5cm") %>% 
   column_spec(2:4, width="3cm") %>% 
-  add_footnote("The numbers do not add up to 22,621 because there are surnames that are equally predictive of more than one country/area.",
+  add_footnote(c("The numbers do not add up to 22,621 because there are surnames that are equally predictive of more than one country/area.",
+                 "Note: The second column of this table presents the numbers of surnames that are predictive of one country/area with a 50% or higher probability. The third and fourth columns are the number of Social Security Number (SSN) application records that have the corresponding surnames."),
                notation="symbol",
                threeparttable=TRUE)
 ```
 
+# Intext. Validation of the Probabilistic List’s ability to predict the subset of names on the Frequently Occurring Surnames from the 2010 Census that have their most frequent self-reported race/ethnicity as “Asian and Pacific Islander”
+
+This was originally a table but we decided to only report the first row in the text and ignore the other rows as the validation done on KP cohort is more robust and complete.
+```{r}
+temp <- predictSummary %>% 
+  filter(maxCntr == "Whole List") %>% 
+  rename(name = maxCntr) %>% 
+  mutate(across(.cols=PPV:Specificity, .fns=~round(as.numeric(.x), 4)*100))
+```
+
+There are `r temp$nameCount` surnames that appeared in both the Probabilistic List and the list of Frequently Occurring Surnames from the 2010 Census. The sensitivity and specificity of our list are `r temp$Sensitivity` and `r temp$Specificity`, respectively. And the PPV of our list predicting the surnames in the list of Frequently Occurring Surnames from the 2010 Census is `r temp$PPV`.
+
 \newpage
-# Table 3. Validation result with ACS data
+# Table 3. Validation of the Deterministic List’s ability to predict foreign-born population’s ethnicity through cross validation
 ```{r tab3}
+tab3 <- cvResultsSummary %>% 
+  select(area:`Pos Pred Value`) 
+
+# Replace area codes with actual names
+tab3 <- replace_sort(tab3, "area") %>% 
+  select(name, `Pos Pred Value`, Sensitivity, Specificity) %>% 
+  filter(name != "All the other countries and regions") %>% 
+  mutate(across(.cols=`Pos Pred Value`:Specificity, .fns=~round(as.numeric(.x), 4)*100))
+
+tab3 %>% 
+  kbl(col.names=c("Country/Area of origin", "PPV (%)", "Sensitivity (%)", "Specificity (%)"),
+      align="l", booktabs=TRUE) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:4, width="3cm") %>% 
+  add_footnote("Note: The table presents the result of validating the Deterministic List through four-fold cross-validation. In each iteration, 75% of the sample is used to estimate a Probabilistic List. The country/area that each surname predicts with a probability of 50% or higher is then compared with the country/area of birth of samples in the set-aside 25% test set. The results are summarized into a confusion matrix, and Positive Predictive Value (PPV), sensitivity, and specificity are calculated. The table shows the mean results from the four test-set evaluations.",
+               notation="none",
+               threeparttable=TRUE)
+```
+
+\newpage
+# Table 4. Sensitivity and specificity of the Deterministic List when used to predict ethnicity with Kaiser Permanente cohort
+```{r tab4}
+tab4 <- validateKP1
+
+# Define the conditions and replacement values
+conditions <- c("Overall Asian", "South Asian Subcontinent", "Korea", "China", "Vietnam")
+replace <- c("Asia", "Bangladesh, India, Pakistan, Sikkim, British India",
+             "Korea, Democratic People’s Republic of Korea, Republic of Korea",
+             "Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan",
+             "Vietnam, Democratic Republic of Vietnam, Republic of Vietnam")
+ 
+# Create a named vector for replacement
+replacement_map <- setNames(replace, conditions)
+
+# Use case_when to replace the values in the Origin column
+tab4 <- tab4 %>%
+  mutate(Origin = case_when(Origin %in% names(replacement_map) ~ replacement_map[Origin],
+                            TRUE ~ Origin))
+
+tab4 %>% 
+  kbl(col.names=c("Country/Area of origin", "Number of populations in Kaiser Permanente Asian Cohort", "Sensitivity (%)", "Specificity (%)"),
+      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>%
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:4, width="4cm") %>% 
+  add_footnote("spaceholder",
+               notation="none",
+               threeparttable=TRUE)
+```
+
+\newpage
+# Table 5. Positive predictive value (PPV) of the Deterministic List’s ability to predict Asian ethnicity by geography 
+```{r tab5}
+tab5 <- validateKP2[complete.cases(validateKP2[1:2]), ]
+
+# Use case_when to replace the values in the Origin column
+tab5 <- tab5 %>%
+  mutate(Origin = case_when(Origin %in% names(replacement_map) ~ replacement_map[Origin],
+                            TRUE ~ Origin))
+
+# Rearrange the rows to be consistent with other tables
+tab5 <- dplyr::arrange(tab5, tab5$Origin)
+
+tab5 %>% 
+  kbl(col.names=c("Country/Area of origin", "Prevalence (%)", "PPV (%)", "PPV conditional on Asian (%)", "Prevalence (%)", "PPV (%)", "PPV conditional on Asian (%)"),
+      align="l", booktabs=TRUE) %>%
+  add_header_above(header=c(" "=1, "Nationwide"=3, "San Francisco metropolitan area"=3)) %>% 
+  kable_styling(latex_options = c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:7, width="3cm") %>% 
+  add_footnote("spaceholder",
+               notation="none",
+               threeparttable=TRUE)
+```
+
+\newpage
+# Sample Table. Numbers of foreign-born records from corresponding country/area - Leftout
+```{r sample tab}
+# Create sample tab to show the foreign-born frequencies
+smpTab <- cntr %>% 
+  group_by(area) %>% 
+  summarise(obs = sum(freq)) 
+
+# Replace area codes with actual names
+smpTab <- replace_sort(smpTab, "area") %>% 
+  select(name, obs)
+
+smpTab %>% 
+  kbl(col.names=c("Country/Area of birth", "Number of foreign-born records"),
+      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>% 
+  kable_styling(latex_options = c("hold_position")) %>% 
+  column_spec(1:2, width="5cm")
+```
+
+<!--
+```{r original tab3}
 countrySummary <- predictSummary %>% 
   filter(maxCntr != "Whole List") %>% 
   rbind(c("MV", 0, NA, NA, NA))
@@ -211,42 +328,5 @@ tab3 %>%
                threeparttable=TRUE) %>% 
   pack_rows("", 2, 20)
 ```
+-->
 
-\newpage
-# Table 4. Validation result of cross validation
-```{r tab4}
-tab4 <- cvResultsSummary %>% 
-  select(area:`Pos Pred Value`) 
-
-# Replace area codes with actual names
-tab4 <- replace_sort(tab4, "area") %>% 
-  select(name, `Pos Pred Value`, Sensitivity, Specificity) %>% 
-  filter(name != "All the other countries and regions") %>% 
-  mutate(across(.cols=`Pos Pred Value`:Specificity, .fns=~round(as.numeric(.x), 4)*100))
-
-tab4 %>% 
-  kbl(col.names=c(" ", "PPV (%)", "Sensitivity (%)", "Specificity (%)"),
-      align="l", booktabs=TRUE) %>%
-  kable_styling(latex_options = c("hold_position")) %>%
-  column_spec(1, width="5cm") %>% 
-  column_spec(2:4, width="3cm")
-```
-
-\newpage
-# Sample Table. Numbers of foreign-born records from corresponding country/area - Leftout
-```{r sample tab}
-# Create sample tab to show the foreign-born frequencies
-smpTab <- cntr %>% 
-  group_by(area) %>% 
-  summarise(obs = sum(freq)) 
-
-# Replace area codes with actual names
-smpTab <- replace_sort(smpTab, "area") %>% 
-  select(name, obs)
-
-smpTab %>% 
-  kbl(col.names=c("Country/Area of birth", "Number of foreign-born records"),
-      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>% 
-  kable_styling(latex_options = c("hold_position")) %>% 
-  column_spec(1:2, width="5cm")
-```

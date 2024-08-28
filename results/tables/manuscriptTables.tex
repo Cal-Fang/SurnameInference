@@ -55,6 +55,7 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usepackage{float}
+\usepackage{geometry} \geometry{a3paper}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -83,7 +84,7 @@
 
 \title{Name Method: tables for the manuscript}
 \author{Cal Chengqi Fang}
-\date{2024-06-27}
+\date{2024-07-23}
 
 \begin{document}
 \maketitle
@@ -91,58 +92,46 @@
 In this document, I made some tables for our manuscript to illustrate
 our analysis process and results.
 
-\newpage
-
-\hypertarget{table-1.-illustrative-surnames-and-corresponding-conditional-probabilities}{%
-\section{Table 1. Illustrative surnames and corresponding conditional
-probabilities}\label{table-1.-illustrative-surnames-and-corresponding-conditional-probabilities}}
+\hypertarget{table-1.-illustrative-surnames-from-the-probabilistic-list-and-the-estimated-probabilities-of-origins-from-each-area-conditional-on-having-the-corresponding-surnames}{%
+\section{Table 1. Illustrative surnames from the Probabilistic List and
+the estimated probabilities of origins from each area conditional on
+having the corresponding
+surnames}\label{table-1.-illustrative-surnames-from-the-probabilistic-list-and-the-estimated-probabilities-of-origins-from-each-area-conditional-on-having-the-corresponding-surnames}}
 
 \begin{table}[!h]
-\centering
+\centering\centering
 \begin{threeparttable}
-\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5cm}lllllllll}
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{1.2cm}}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{9}{c}{Illustrative surnames\textsuperscript{*}} \\
-\cmidrule(l{3pt}r{3pt}){2-10}
-Country/Area of origin & HUANG        & CHANG        & KIM          & SUZUKI       & NGUYEN       & INTHAVONG    & PENAFLOR     & SAMEER       & PATAN       \\
-\midrule
-Afghanistan & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 17.74\\
-Bangladesh, India, Pakistan, Sikkim, British India & 0.09 & 0.24 & 0.31 & 0.00 & 0.02 & 0.00 & 0.01 & 52.13 & 33.87\\
-Bhutan & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
-Brunei, Indonesia & 0.13 & 0.23 & 0.02 & 0.03 & 0.14 & 0.00 & 0.01 & 0.00 & 0.00\\
-Cambodia & 0.07 & 0.37 & 0.74 & 0.03 & 0.32 & 0.00 & 0.01 & 0.00 & 0.00\\
+\multicolumn{1}{c}{ } & \multicolumn{20}{c}{Country/Area of origin\textsuperscript{*}} \\
+\cmidrule(l{3pt}r{3pt}){2-21}
+Illustrative surnames & Afghanistan & Bangladesh, India, Pakistan, Sikkim, British India & Bhutan & Brunei, Indonesia & Cambodia & Japan, Southern Ryukyu Islands & Korea, Democratic People’s Republic of Korea, Republic of Korea & Laos & Malaysia & Maldives & Mongolia & Myanmar & Nepal & Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan & Philippines & Singapore & Sri Lanka & Thailand & Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & All the other countries and regions\\
+HUANG & 0.00 & 0.09 & 0.00 & 0.13 & 0.07 & 0.19 & 0.13 & 0.08 & 0.12 & 0.00 & 0.00 & 0.14 & 0.00 & 96.28 & 0.32 & 0.22 & 0.00 & 0.06 & 1.31 & 0.86\\
+CHANG & 0.00 & 0.24 & 0.00 & 0.23 & 0.37 & 0.62 & 21.64 & 3.02 & 0.88 & 0.00 & 0.00 & 0.50 & 0.00 & 62.10 & 0.56 & 0.35 & 0.01 & 2.21 & 1.52 & 5.75\\
+KIM & 0.00 & 0.31 & 0.00 & 0.02 & 0.74 & 0.81 & 94.74 & 0.01 & 0.05 & 0.00 & 0.00 & 0.15 & 0.00 & 0.34 & 0.10 & 0.02 & 0.00 & 0.11 & 0.59 & 2.02\\
+SUZUKI & 0.00 & 0.00 & 0.00 & 0.03 & 0.03 & 95.73 & 0.32 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.60 & 0.33 & 0.04 & 0.00 & 0.09 & 0.03 & 2.79\\
 \addlinespace
-Japan, Southern Ryukyu Islands & 0.19 & 0.62 & 0.81 & 95.73 & 0.07 & 0.00 & 0.01 & 0.00 & 0.00\\
-Korea, Democratic People’s Republic of Korea, Republic of Korea & 0.13 & 21.64 & 94.74 & 0.32 & 0.07 & 0.00 & 0.01 & 0.00 & 0.00\\
-Laos & 0.08 & 3.02 & 0.01 & 0.00 & 0.31 & 90.75 & 0.01 & 0.00 & 0.00\\
-Malaysia & 0.12 & 0.88 & 0.05 & 0.00 & 0.17 & 0.00 & 0.01 & 0.00 & 0.00\\
-Maldives & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.01 & 0.00 & 0.00\\
-\addlinespace
-Mongolia & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
-Myanmar & 0.14 & 0.50 & 0.15 & 0.00 & 0.01 & 0.00 & 0.01 & 0.00 & 0.00\\
-Nepal & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
-Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan & 96.28 & 62.10 & 0.34 & 0.60 & 0.25 & 0.00 & 0.01 & 0.00 & 0.00\\
-Philippines & 0.32 & 0.56 & 0.10 & 0.33 & 0.41 & 0.91 & 69.13 & 0.00 & 0.00\\
-\addlinespace
-Singapore & 0.22 & 0.35 & 0.02 & 0.04 & 0.01 & 0.00 & 0.01 & 0.00 & 0.00\\
-Sri Lanka & 0.00 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 0.00 & 0.00\\
-Thailand & 0.06 & 2.21 & 0.11 & 0.09 & 0.20 & 7.88 & 0.01 & 0.00 & 6.45\\
-Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 1.31 & 1.52 & 0.59 & 0.03 & 95.14 & 0.45 & 0.01 & 0.00 & 0.00\\
-All the other countries and regions & 0.86 & 5.75 & 2.02 & 2.79 & 2.88 & 0.00 & 30.65 & 47.87 & 41.94\\
+NGUYEN & 0.00 & 0.02 & 0.00 & 0.14 & 0.32 & 0.07 & 0.07 & 0.31 & 0.17 & 0.01 & 0.00 & 0.01 & 0.00 & 0.25 & 0.41 & 0.01 & 0.00 & 0.20 & 95.14 & 2.88\\
+INTHAVONG & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 90.75 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.91 & 0.00 & 0.00 & 7.88 & 0.45 & 0.00\\
+VICENCIO & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 0.02 & 1.07 & 55.85 & 0.02 & 0.02 & 0.02 & 0.02 & 42.76\\
+SAMEER & 0.00 & 52.13 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 47.87\\
+PATAN & 17.74 & 33.87 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 6.45 & 0.00 & 41.94\\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \small
-\item [*] The probabilities in each column do not add up to 1 because of rounding error.
+\item [*] Note: This table exemplifies the Probabilistic List with some illustrative surnames. Each column represents one illustrative surname. Numbers in the row denote the probabilities of someone originating from the corresponding area conditional on having corresponding surnames. Probabilities in each row may not add up to 1 due to rounding error.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
-
 \newpage
 
-\hypertarget{table-2.-predictive-surnames-and-related-record-numbers}{%
-\section{Table 2. Predictive surnames and related record
-numbers}\label{table-2.-predictive-surnames-and-related-record-numbers}}
+\hypertarget{table-2.-numbers-of-surnames-in-the-deterministic-list-that-are-predictive-for-each-area-of-origin-with-the-number-of-us-born-and-foreign-born-ssn-records-having-that-surname}{%
+\section{Table 2. Numbers of surnames in the Deterministic List that are
+predictive for each area of origin, with the number of US-born and
+foreign-born SSN records having that
+surname}\label{table-2.-numbers-of-surnames-in-the-deterministic-list-that-are-predictive-for-each-area-of-origin-with-the-number-of-us-born-and-foreign-born-ssn-records-having-that-surname}}
 
 \begin{table}[!h]
 \centering
@@ -178,65 +167,41 @@ Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 257 & 594,284 & 1
 \begin{tablenotes}
 \small
 \item [*] The numbers do not add up to 22,621 because there are surnames that are equally predictive of more than one country/area.
+\item [\dag] Note: The second column of this table presents the numbers of surnames that are predictive of one country/area with a 50\% or higher probability. The third and fourth columns are the number of Social Security Number (SSN) application records that have the corresponding surnames.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
 
+\hypertarget{intext.-validation-of-the-probabilistic-lists-ability-to-predict-the-subset-of-names-on-the-frequently-occurring-surnames-from-the-2010-census-that-have-their-most-frequent-self-reported-raceethnicity-as-asian-and-pacific-islander}{%
+\section{Intext. Validation of the Probabilistic List's ability to
+predict the subset of names on the Frequently Occurring Surnames from
+the 2010 Census that have their most frequent self-reported
+race/ethnicity as ``Asian and Pacific
+Islander''}\label{intext.-validation-of-the-probabilistic-lists-ability-to-predict-the-subset-of-names-on-the-frequently-occurring-surnames-from-the-2010-census-that-have-their-most-frequent-self-reported-raceethnicity-as-asian-and-pacific-islander}}
+
+This was originally a table but we decided to only report the first row
+in the text and ignore the other rows as the validation done on KP
+cohort is more robust and complete.
+
+There are 3170 surnames that appeared in both the Probabilistic List and
+the list of Frequently Occurring Surnames from the 2010 Census. The
+sensitivity and specificity of our list are 87.02 and 97.99,
+respectively. And the PPV of our list predicting the surnames in the
+list of Frequently Occurring Surnames from the 2010 Census is 77.41.
+
 \newpage
 
-\hypertarget{table-3.-validation-result-with-acs-data}{%
-\section{Table 3. Validation result with ACS
-data}\label{table-3.-validation-result-with-acs-data}}
+\hypertarget{table-3.-validation-of-the-deterministic-lists-ability-to-predict-foreign-born-populations-ethnicity-through-cross-validation}{%
+\section{Table 3. Validation of the Deterministic List's ability to
+predict foreign-born population's ethnicity through cross
+validation}\label{table-3.-validation-of-the-deterministic-lists-ability-to-predict-foreign-born-populations-ethnicity-through-cross-validation}}
 
 \begin{table}[!h]
 \centering
 \begin{threeparttable}
-\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
-\toprule
-  & Number of surnames present in both lists\textsuperscript{*} & PPV (\%) & Sensitivity (\%) & Specificity (\%)\\
-\midrule
-Whole List & 3170 & 77.41 & 87.02 & 97.99\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{}}\\
-\hspace{1em}Afghanistan & 23 & 4.35 & NA & NA\\
-\hspace{1em}Bangladesh, India, Pakistan, Sikkim, British India & 908 & 81.83 & NA & NA\\
-\hspace{1em}Bhutan & 15 & 93.33 & NA & NA\\
-\hspace{1em}Brunei, Indonesia & 21 & 61.90 & NA & NA\\
-\hspace{1em}Cambodia & 96 & 69.79 & NA & NA\\
-\hspace{1em}Japan, Southern Ryukyu Islands & 467 & 88.44 & NA & NA\\
-\hspace{1em}Korea, Democratic People’s Republic of Korea, Republic of Korea & 97 & 72.16 & NA & NA\\
-\hspace{1em}Laos & 34 & 85.29 & NA & NA\\
-\hspace{1em}Malaysia & 22 & 63.64 & NA & NA\\
-\hspace{1em}Maldives & 0 & NA & NA & NA\\
-\hspace{1em}Mongolia & 2 & 50.00 & NA & NA\\
-\hspace{1em}Myanmar & 37 & 67.57 & NA & NA\\
-\hspace{1em}Nepal & 18 & 94.44 & NA & NA\\
-\hspace{1em}Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan & 203 & 80.79 & NA & NA\\
-\hspace{1em}Philippines & 1151 & 70.55 & NA & NA\\
-\hspace{1em}Singapore & 3 & 66.67 & NA & NA\\
-\hspace{1em}Sri Lanka & 8 & 62.50 & NA & NA\\
-\hspace{1em}Thailand & 1 & 0.00 & NA & NA\\
-\hspace{1em}Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 72 & 93.06 & NA & NA\\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\small
-\item [*] The numbers of surnames of countries/areas do not add up to 3,370 because there are surnames that are equally predictive of more than one country/area.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-\newpage
-
-\hypertarget{table-4.-validation-result-of-cross-validation}{%
-\section{Table 4. Validation result of cross
-validation}\label{table-4.-validation-result-of-cross-validation}}
-
-\begin{table}[!h]
-\centering
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
 \toprule
-  & PPV (\%) & Sensitivity (\%) & Specificity (\%)\\
+Country/Area of origin & PPV (\%) & Sensitivity (\%) & Specificity (\%)\\
 \midrule
 Afghanistan & 75.95 & 51.44 & 99.96\\
 Bangladesh, India, Pakistan, Sikkim, British India & 87.40 & 98.84 & 95.94\\
@@ -262,6 +227,96 @@ Thailand & 86.64 & 2.84 & 100.00\\
 Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 91.49 & 92.67 & 98.82\\
 \bottomrule
 \end{tabular}
+\begin{tablenotes}
+\small
+\item [] Note: The table presents the result of validating the Deterministic List through four-fold cross-validation. In each iteration, 75\% of the sample is used to estimate a Probabilistic List. The country/area that each surname predicts with a probability of 50\% or higher is then compared with the country/area of birth of samples in the set-aside 25\% test set. The results are summarized into a confusion matrix, and Positive Predictive Value (PPV), sensitivity, and specificity are calculated. The table shows the mean results from the four test-set evaluations.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\newpage
+
+\hypertarget{table-4.-sensitivity-and-specificity-of-the-deterministic-list-when-used-to-predict-ethnicity-with-kaiser-permanente-cohort}{%
+\section{Table 4. Sensitivity and specificity of the Deterministic List
+when used to predict ethnicity with Kaiser Permanente
+cohort}\label{table-4.-sensitivity-and-specificity-of-the-deterministic-list-when-used-to-predict-ethnicity-with-kaiser-permanente-cohort}}
+
+\begin{table}[!h]
+\centering
+\begin{threeparttable}
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{4cm}>{\raggedright\arraybackslash}p{4cm}>{\raggedright\arraybackslash}p{4cm}}
+\toprule
+Country/Area of origin & Number of populations in Kaiser Permanente Asian Cohort & Sensitivity (\%) & Specificity (\%)\\
+\midrule
+Asia & 1,085,429 & 71.51 & 97.32\\
+Afghanistan & 1,458 & 22.02 & 99.95\\
+Bangladesh, India, Pakistan, Sikkim, British India & 110,563 & 69.93 & 99.27\\
+Indonesia & 1,928 & 20.49 & 99.99\\
+Cambodia & 5,425 & 42.18 & 99.94\\
+\addlinespace
+Japan & 24,844 & 58.45 & 99.80\\
+Korea, Democratic People’s Republic of Korea, Republic of Korea & 20,492 & 78.49 & 99.40\\
+Laos & 5,064 & 38.19 & 99.94\\
+Malaysia & 702 & 11.40 & 99.95\\
+Myanmar & 1,893 & 45.85 & 99.97\\
+\addlinespace
+Nepal & 2,310 & 59.91 & 99.97\\
+Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan & 206,370 & 76.53 & 99.43\\
+Philippines & 192,565 & 38.93 & 99.26\\
+Singapore & 245 & 4.08 & 99.99\\
+Sri Lanka & 562 & 25.09 & 99.99\\
+\addlinespace
+Thailand & 3,846 & 0.52 & 100.00\\
+Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 56,561 & 85.97 & 99.64\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item [] spaceholder
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\newpage
+
+\hypertarget{table-5.-positive-predictive-value-ppv-of-the-deterministic-lists-ability-to-predict-asian-ethnicity-by-geography}{%
+\section{Table 5. Positive predictive value (PPV) of the Deterministic
+List's ability to predict Asian ethnicity by
+geography}\label{table-5.-positive-predictive-value-ppv-of-the-deterministic-lists-ability-to-predict-asian-ethnicity-by-geography}}
+
+\begin{table}[!h]
+\centering
+\begin{threeparttable}
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{Nationwide} & \multicolumn{3}{c}{San Francisco metropolitan area} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+Country/Area of origin & Prevalence (\%) & PPV (\%) & PPV conditional on Asian (\%) & Prevalence (\%) & PPV (\%) & PPV conditional on Asian (\%)\\
+\midrule
+Asia & 5.77 & 62.05 & NA & 27.27 & 90.91 & NA\\
+Bangladesh, India, Pakistan, Sikkim, British India & 1.49 & 59.23 & 98.25 & 5.43 & 84.62 & 97.43\\
+Cambodia & 0.08 & 36.65 & 74.92 & 0.18 & 56.12 & 57.10\\
+Indonesia & 0.03 & 34.27 & 61.95 & 0.10 & 67.67 & 57.05\\
+Japan & 0.23 & 40.27 & 90.98 & 0.84 & 71.32 & 88.15\\
+\addlinespace
+Korea, Democratic People’s Republic of Korea, Republic of Korea & 0.45 & 37.15 & 71.04 & 1.11 & 59.45 & 54.06\\
+Laos & 0.05 & 25.85 & 55.97 & 0.15 & 48.59 & 41.09\\
+Malaysia & 0.01 & 1.49 & 4.51 & 0.02 & 5.30 & 3.42\\
+Myanmar & 0.06 & 47.80 & 79.94 & 0.12 & 65.38 & 62.41\\
+Nepal & 0.06 & 54.88 & 86.22 & 0.14 & 74.05 & 74.79\\
+\addlinespace
+Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan & 1.35 & 64.82 & 91.18 & 11.23 & 94.44 & 95.79\\
+Philippines & 0.89 & 32.19 & 93.30 & 5.38 & 74.95 & 94.70\\
+Sri Lanka & 0.02 & 30.53 & 73.27 & 0.04 & 51.02 & 56.89\\
+Thailand & 0.06 & 100.00 & 100.00 & 0.13 & 100.00 & 100.00\\
+Vietnam, Democratic Republic of Vietnam, Republic of Vietnam & 0.57 & 57.80 & 81.58 & 1.45 & 77.84 & 68.43\\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item [] spaceholder
+\end{tablenotes}
+\end{threeparttable}
 \end{table}
 
 \newpage
