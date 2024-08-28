@@ -200,8 +200,8 @@ registerDoParallel(cl)
 
 # Run cross-validation in parallel
 cvResults <- foreach(fold=folds, 
-                     .combine='bind_rows', 
-                     .packages=c('tidyverse', 'Matrix', 'caret', 'data.table')) %dopar% {
+                     .combine="bind_rows", 
+                     .packages=c("tidyverse", "Matrix", "caret", "data.table")) %dopar% {
                        train_data <- cntr %>% 
                          filter(!(id %in% fold))
                        test_data <- cntr %>% 
@@ -228,6 +228,6 @@ cvResultsSummary <- cvResults %>%
 # Save the results
 save(cvResults, cvResultsSummary,
      file="data/interm/validateCV.Rdata")
-write_csv(cvResultsSummary, 
-          file="results/validate/validateResultsCV.csv")
+fwrite(cvResultsSummary, 
+       file="results/validate/validateResultsCV.csv")
 

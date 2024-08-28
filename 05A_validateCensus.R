@@ -180,5 +180,5 @@ predictSummary <- rbind(c("Whole List", wholeCount, wholePPV, wholeSensitivity, 
 # Save the results
 save(predictSummary,
      file="data/interm/validateCensus.Rdata")
-write_csv(predictSummary, 
-          file="results/validate/validateResultsCensus.csv")
+fwrite(predictSummary, 
+       file="results/validate/validateResultsCensus.csv")
