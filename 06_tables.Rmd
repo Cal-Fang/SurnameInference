@@ -8,10 +8,12 @@ output:
 classoption: landscape
 header-includes:
   - \usepackage{float}
-  - \usepackage{geometry} \geometry{a3paper}
+  - \usepackage{geometry}
+  - \geometry{a3paper}
 knit: >
   (function(inputFile, encoding){
-    rmarkdown::render(inputFile, encoding=encoding, output_file="results/tables/manuscriptTables.pdf")
+    fileName <- paste0("results/tables/manuscriptTables.pdf_", format(Sys.Date(), "%m%d%Y"), ".pdf")
+    rmarkdown::render(inputFile, encoding=encoding, output_file=fileName)
   })
 ---
 
@@ -26,6 +28,7 @@ require(data.table)
 
 require(knitr)      # For generating nice and organized results
 require(kableExtra) # For generating nice and organized results
+require(readxl)
 ```
 
 ```{r data}
@@ -138,6 +141,18 @@ tab1 %>%
                threeparttable=TRUE)%>%
   kable_styling(font_size=7)
 ```
+
+We also checked the number of surnames that reached 12-character limit:
+
+```{r}
+surnames_trimmed <- str_trim(surnames, side="right")
+
+num <- sum(str_length(surnames_trimmed) == 12)
+prop <- sum(str_length(surnames_trimmed) == 12) / length(surnames_trimmed)
+
+print(paste0("N = ", num, ", representing ", round(prop, 2), "% of surnames."))
+```
+
 \newpage
 
 # Table 2. Numbers of surnames in the Deterministic List that are predictive for each area of origin, with the number of US-born and foreign-born SSN records having that surname
@@ -225,59 +240,157 @@ tab3 %>%
 ```
 
 \newpage
-# Table 4. Sensitivity and specificity of the Deterministic List when used to predict ethnicity with Kaiser Permanente cohort
+# Table 4. Sensitivity and specificity of the Probabilistic List when used to predict Asian-origin ethnicity within the Kaiser Permanente Northern California (KPNC) cohort
 ```{r tab4}
-tab4 <- validateKP1
+# Combine all sensitivity and specificity sets with an age group identifier
+tab4_combined <- bind_rows(
+  ssKP %>% mutate(age_group = "Total"),
+  ssKP0039 %>% mutate(age_group = "<=39"),
+  ssKP4059 %>% mutate(age_group = "40-59"),
+  ssKP60GE %>% mutate(age_group = ">=60")
+)
 
-# Define the conditions and replacement values
+# Apply the origin replacements
 conditions <- c("Overall Asian", "South Asian Subcontinent", "Korea", "China", "Vietnam")
 replace <- c("Asia", "Bangladesh, India, Pakistan, Sikkim, British India",
-             "Korea, Democratic People’s Republic of Korea, Republic of Korea",
+             "Korea, Democratic People's Republic of Korea, Republic of Korea",
              "Peoples Republic of China, Hong Kong, Macau (Macao), Taiwan",
              "Vietnam, Democratic Republic of Vietnam, Republic of Vietnam")
- 
-# Create a named vector for replacement
+
 replacement_map <- setNames(replace, conditions)
 
-# Use case_when to replace the values in the Origin column
-tab4 <- tab4 %>%
+tab4_combined <- tab4_combined %>%
   mutate(Origin = case_when(Origin %in% names(replacement_map) ~ replacement_map[Origin],
                             TRUE ~ Origin))
 
-tab4 %>% 
-  kbl(col.names=c("Country/Area of origin", "Number of populations in Kaiser Permanente Asian Cohort", "Sensitivity (%)", "Specificity (%)"),
-      format.args=c(big.mark=","), align="l", booktabs=TRUE) %>%
-  kable_styling(latex_options = c("hold_position")) %>%
+# Pivot to wide format to match your table structure
+tab4_wide <- tab4_combined %>%
+  pivot_wider(id_cols=Origin,
+              names_from=age_group, values_from=c(N, Sensitivity, Specificity),
+              names_glue="{.value}_{age_group}") %>%
+  select(Origin, 
+         N_Total, `N_<=39`, `N_40-59`, `N_>=60`,
+         Sensitivity_Total, `Sensitivity_<=39`, `Sensitivity_40-59`, `Sensitivity_>=60`,
+         Specificity_Total, `Specificity_<=39`, `Specificity_40-59`, `Specificity_>=60`)
+
+# Create the table
+tab4_wide %>% 
+  kbl(col.names=c("Country/Area of origin",
+                  "Total", "<=39", "40-59", ">=60",   # N columns
+                  "Total", "<=39", "40-59", ">=60",   # Sensitivity columns
+                  "Total", "<=39", "40-59", ">=60"),  # Specificity columns
+      format.args=list(big.mark=","),  align="l",  booktabs=TRUE) %>%
+  kable_styling(latex_options=c("hold_position")) %>%
   column_spec(1, width="5cm") %>% 
-  column_spec(2:4, width="4cm") %>% 
-  add_footnote("spaceholder",
+  column_spec(2:13, width="1.5cm") %>%
+  # Add header groups
+  add_header_above(c(" "=1, 
+                     "Number of populations in KPNC self-reported Asian Cohort"=4,
+                     "Sensitivity (%)"=4,
+                     "Specificity (%)"=4)) %>%
+  add_footnote("Note: The table presents the result of validating the Probabilistic List within the KPNC cohort. The Probabilistic List is estimated with the Social Security Number application record through 2013 using Expectation-Maximization method. KPNC is a large, integrated health care delivery system where >4.6 million members receive comprehensive inpatient, emergency and outpatient care through 21 hospitals and >260 clinics across Northern California. The Probabilistic List’s most probable origin for each surname were compared with the self-reported ethnicity of individuals carrying the same surname in the cohort. Sensitivity, specificity, and PPV in both the self-reported Asian race group and in all known Asian-origin ethnicity groups in the KPNC cohort were calculated for the whole cohort and by age group. Multiethnic Asian and Unknown Asian categories were included only to validate the performance in identifying the Asian race, not specific ethnicities. KPNC did not have an ethnicity choice for Brunei, thus the Indonesia origin here is listed independently. KPNC also did not have ethnicity choices for Maldives and Mongolia, thus these two origins were not evaluated.",
+               notation="none",
+               threeparttable=TRUE)
+```
+
+\eject \pdfpagewidth=425mm \pdfpageheight=297mm
+\newpage
+
+# Table 5. Positive predictive value (PPV) of the Probabilistic List when used to predict Asian-origin ethnicity within the Kaiser Permanente Northern California (KPNC) cohort, calibrated by geography
+```{r tab5, fig.align='center'}
+# Combine all PPV sets with an age group identifier
+tab5_combined <- bind_rows(
+  pKP %>% mutate(age_group = "Total"),
+  pKP0039 %>% mutate(age_group = "<=39"),
+  pKP4059 %>% mutate(age_group = "40-59"),
+  pKP60GE %>% mutate(age_group = ">=60")
+) %>%
+  filter(complete.cases(.[1:2]))
+
+# Apply the origin replacements
+tab5_combined <- tab5_combined %>% 
+  mutate(Origin = case_when(Origin %in% names(replacement_map) ~ replacement_map[Origin],
+                            TRUE ~ Origin))
+
+# Pivot to wide format
+tab5_wide <- tab5_combined %>%
+  pivot_wider(id_cols=Origin,
+              names_from=age_group, values_from=c(`Prevalence (US)`, `PPV (US)`, `PPV (Asian, US)`,
+                                                  `Prevalence (SF)`, `PPV (SF)`, `PPV (Asian, SF)`),
+              names_glue="{.value}_{age_group}") %>%
+  select(Origin,
+         `Prevalence (US)_Total`, `Prevalence (US)_<=39`, `Prevalence (US)_40-59`, `Prevalence (US)_>=60`,
+         `PPV (US)_Total`, `PPV (US)_<=39`, `PPV (US)_40-59`, `PPV (US)_>=60`,
+         `PPV (Asian, US)_Total`, `PPV (Asian, US)_<=39`, `PPV (Asian, US)_40-59`, `PPV (Asian, US)_>=60`,
+         `Prevalence (SF)_Total`, `Prevalence (SF)_<=39`, `Prevalence (SF)_40-59`, `Prevalence (SF)_>=60`,
+         `PPV (SF)_Total`, `PPV (SF)_<=39`, `PPV (SF)_40-59`, `PPV (SF)_>=60`,
+         `PPV (Asian, SF)_Total`, `PPV (Asian, SF)_<=39`, `PPV (Asian, SF)_40-59`, `PPV (Asian, SF)_>=60`) %>%
+  arrange(Origin) 
+
+# Create the table
+tab5_wide %>% 
+  kbl(col.names=c("Country/Area of origin",
+                  "Total", "<=39", "40-59", ">=60",   # Prevalence columns, US
+                  "Total", "<=39", "40-59", ">=60",   # PPV columns, US
+                  "Total", "<=39", "40-59", ">=60",   # PPV Asian columns, US
+                  "Total", "<=39", "40-59", ">=60",   # Prevalence columns, SF
+                  "Total", "<=39", "40-59", ">=60",   # PPV columns, SF
+                  "Total", "<=39", "40-59", ">=60"),  # PPV Asian columns, SF
+      format.args=list(big.mark=","),  align="l",  booktabs=TRUE) %>%
+  add_header_above(c(" "=1, 
+                     "Prevalence (%)"=4, "PPV (%)"=4, "PPV conditional on Asian (%)"=4, 
+                     "Prevalence (%)"=4, "PPV (%)"=4, "PPV conditional on Asian (%)"=4)) %>%
+  add_header_above(c(" "=1, "Nationwide"=12, "San Francisco metropolitan area"=12)) %>%
+  kable_styling(latex_options=c("hold_position"),
+                position = "center") %>%
+  column_spec(1, width="3.5cm") %>% 
+  column_spec(2:13, width="1cm") %>% 
+  add_footnote("Note: The table presents the result of validating the Probabilistic List within the KPNC cohort. The Probabilistic List is estimated with the Social Security Number application record through 2013 using Expectation-Maximization method. KPNC is a large, integrated health care delivery system where >4.6 million members receive comprehensive inpatient, emergency and outpatient care through 21 hospitals and >260 clinics across Northern California. The Probabilistic List’s most probable origin for each surname were compared with the self-reported ethnicity of individuals carrying the same surname in the cohort. Positive predictive value (PPV) in both the self-reported Asian race group and in all known Asian-origin ethnicity groups in the KP cohort were calculated. We then used the prevalence of Asian race group in the U.S. and San Francisco metropolitan area from the 2018-2022 American Community Survey 5-Year Estimates (ACS5) to estimate the PPVs in the corresponding area. Multiethnic Asian and Unknown Asian categories were included only to validate the performance in identifying the Asian race, not specific ethnicities. KPNC did not have an ethnicity choice for Brunei, thus the Indonesia origin here is listed independently. KPNC also did not have ethnicity choices for Maldives and Mongolia, thus these two origins were not evaluated. ACS5 did not include Afghans and Singaporean as ethnicity choices, thus these two origins were not evaluated either. We used estimates from ACS5’s San Francisco-Oakland-Hayward metropolitan area estimates, which is labeled in the MET2013 variable.",
+               notation="none",
+               threeparttable=TRUE)
+```
+
+
+\eject \pdfpagewidth=420mm \pdfpageheight=297mm
+\newpage
+
+# Table 6. Population distribution estimates using the Probabilistic List compared with observed frequencies in the Kaiser Permanente Northern California (KPNC) cohort
+```{r}
+tab6 <- read_excel("results/validate/validateResultsKP2.xlsx", sheet=7) %>% 
+  select(-origin) %>% 
+  mutate(ProbList_Freq = round(ProbList_Freq * 100, 2),
+         KP_freq = round(KP_freq * 100, 2))
+
+# Calculate Absolute difference and symmetric relative error rate 
+tab6 <- tab6 %>% 
+  mutate(ad = abs(ProbList_Freq - KP_freq),
+         srer = abs(ProbList_Freq - KP_freq) / ((ProbList_Freq + KP_freq) / 2) * 100) 
+
+# Attach a weighted mean absolute error rate row
+tab6 <- tab6 %>% 
+  rbind(tibble(Ethnicity = "Weighted mean absolute error",
+               ProbList_Freq=NA, KP_freq=NA, ad=sum(tab6$ad * tab6$KP_freq / 100), srer=NA))
+
+# Create the table
+tab6 %>% 
+  kbl(col.names=c("Country/Area of origin",
+                  "Observed frequency in KPNC (%)",
+                  "Predicted probabilities (%)",
+                  "Absolute difference", 
+                  "Symmetric relative error (%)"), 
+      format.args=list(big.mark=","),  align="l",  booktabs=TRUE, digits=2) %>%
+  kable_styling(latex_options=c("hold_position")) %>%
+  column_spec(1, width="5cm") %>% 
+  column_spec(2:5, width="3cm") %>% 
+  add_footnote("Note: The table presents the result of validating the Probabilistic List at the population level against the observed frequencies in the KPNC cohort. The Probabilistic List is estimated with the Social Security Number application record through 2013 using Expectation-Maximization method. KPNC is a large, integrated health care delivery system where >4.6 million members receive comprehensive inpatient, emergency and outpatient care through 21 hospitals and >260 clinics across Northern California. For each individual, the predicted probability of each origin was calculated based on their surname, and these probabilities were averaged by origin across the entire population to estimate group-level distributions. Absolute difference = |Predicted % - Observed %|. Symmetric relative error = |Predicted % - Observed %|/ ((Predicted + Observed)/2) × 100%. Weighted mean absolute error weights each group's error by its observed frequency in the population.",
                notation="none",
                threeparttable=TRUE)
 ```
 
 \newpage
-# Table 5. Positive predictive value (PPV) of the Deterministic List’s ability to predict Asian ethnicity by geography 
-```{r tab5}
-tab5 <- validateKP2[complete.cases(validateKP2[1:2]), ]
-
-# Use case_when to replace the values in the Origin column
-tab5 <- tab5 %>%
-  mutate(Origin = case_when(Origin %in% names(replacement_map) ~ replacement_map[Origin],
-                            TRUE ~ Origin))
-
-# Rearrange the rows to be consistent with other tables
-tab5 <- dplyr::arrange(tab5, tab5$Origin)
-
-tab5 %>% 
-  kbl(col.names=c("Country/Area of origin", "Prevalence (%)", "PPV (%)", "PPV conditional on Asian (%)", "Prevalence (%)", "PPV (%)", "PPV conditional on Asian (%)"),
-      align="l", booktabs=TRUE) %>%
-  add_header_above(header=c(" "=1, "Nationwide"=3, "San Francisco metropolitan area"=3)) %>% 
-  kable_styling(latex_options = c("hold_position")) %>%
-  column_spec(1, width="5cm") %>% 
-  column_spec(2:7, width="3cm") %>% 
-  add_footnote("spaceholder",
-               notation="none",
-               threeparttable=TRUE)
+# Figure 1. Distribution of predicted probabilities for each self-reported Asian-origin ethnicity using the Probabilistic List in the Kaiser Permanente Northern California (KPNC) cohort
+```{r, fig.align='center', echo=FALSE}
+knitr::include_graphics("results/validate/validateResultsKP2Fig.png")
 ```
 
 \newpage

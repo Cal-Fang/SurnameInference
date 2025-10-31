@@ -21,7 +21,7 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## set working directory for Mac and PC
-setwd("/Users/atchoo/Documents/GitHub/Name-Method-Project/")     # Cal's working directory (mac)
+setwd("/Users/atchoo/Documents/GitHub/SurnameInference/")     # Cal's working directory (mac)
 # setwd("C:/Users/")     # Cal's working directory (PC)
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,35 +48,35 @@ require(readxl)         # For reading the validation results
 
 
 # ----------------------------------------------- STEP 2 ----------------------------------------------- 
-# Create the data request payload to download ACS race/ethnicity distribution
-usa_ext_def <- define_extract_usa(
-  description = "2018-2022 5-year ACS Data",
-  samples = "us2022c",
-  variables = c("SEX", "RACE", "PERWT", "MET2013"),
-  data_format = "csv"
-)
-
+# # Create the data request payload to download ACS race/ethnicity distribution
+# usa_ext_def <- define_extract_usa(
+#   description = "2018-2022 5-year ACS Data",
+#   samples = "us2022c",
+#   variables = c("SEX", "AGE", "RACE", "PERWT", "MET2013"),
+#   data_format = "csv"
+# )
+# 
 # # Submit the extract request
 # usa_ext_submitted <- submit_extract(usa_ext_def)
 # 
 # # Download the extract - you may need to wait for several seconds after last line of code
 # filepath <- download_extract(usa_ext_submitted, download_dir="data/ACS2018_2022")
-filepath <- "data/ACS2018_2022/usa_00007.xml"
+filepath <- "data/ACS2018_2022/usa_00008.xml"
 
 # Read in the data
 ddi <- read_ipums_ddi(filepath)
-acsRace <- read_ipums_micro(ddi, vars=c("RACED", "SEX", "PERWT", "MET2013"))
+acsRace <- read_ipums_micro(ddi, vars=c("RACED", "SEX", "AGE", "PERWT", "MET2013"))
 
 
 # ----------------------------------------------- STEP 2 ----------------------------------------------- 
 # Write a function to summarize the distribution
 distriSummarize <- function(data){
   # Create a dummy variable for Asian
-  acsRace <- data %>% 
+  data <- data %>% 
     mutate(ASIAN = RACED >= 400 & RACED < 679)
   
   # Examine existing ethnicity choices among Asian
-  racedSummary <- acsRace %>%
+  racedSummary <- data %>%
     filter(ASIAN) %>%
     group_by(RACED) %>%
     summarise(count = sum(PERWT)) 
@@ -98,7 +98,7 @@ distriSummarize <- function(data){
     summarise(count = sum(count))
   
   # Count the total number of Asian (including bi-ethnicity and others)
-  asianSummary <- acsRace %>%
+  asianSummary <- data %>%
     group_by(ASIAN) %>%
     summarise(count = sum(PERWT))
   
@@ -121,14 +121,35 @@ distriSummarize <- function(data){
 # Run the function to summarize for national sample
 usWeight <- distriSummarize(acsRace)
 
+# Run the function to summarize for national sample by age
+acsRace0039 <- filter(acsRace, AGE <= 39)
+usWeight0039 <- distriSummarize(acsRace0039)
+
+acsRace4059 <- filter(acsRace, AGE >= 40 & AGE <= 59)
+usWeight4059 <- distriSummarize(acsRace4059)
+
+acsRace60GE <- filter(acsRace, AGE >= 60)
+usWeight60GE <- distriSummarize(acsRace60GE)
+
 # Run the function to summairze for SF metropolitan area sample
 sfRace <- acsRace %>% 
   filter(MET2013 == 41860)
 sfWeight <- distriSummarize(sfRace)
+
+# Run the function to summarize for national sample by age
+sfRace0039 <- filter(sfRace, AGE <= 39)
+sfWeight0039 <- distriSummarize(sfRace0039)
+
+sfRace4059 <- filter(sfRace, AGE >= 40 & AGE <= 59)
+sfWeight4059 <- distriSummarize(sfRace4059)
+
+sfRace60GE <- filter(sfRace, AGE >= 60)
+sfWeight60GE <- distriSummarize(sfRace60GE)
                    
 
 # ----------------------------------------------- STEP 4 ----------------------------------------------- 
 # Save the numbers for calibration
-save(usWeight, sfWeight,
+save(usWeight, usWeight0039, usWeight4059, usWeight60GE, 
+     sfWeight, sfWeight0039, sfWeight4059, sfWeight60GE, 
      file="data/interm/acsWeight.Rdata")
 
