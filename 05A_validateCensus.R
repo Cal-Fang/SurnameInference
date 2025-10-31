@@ -25,7 +25,7 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## set working directory for Mac and PC
-setwd("/Users/atchoo/Documents/GitHub/Name-Method-Project/")     # Cal's working directory (mac)
+setwd("/Users/atchoo/Documents/GitHub/SurnameInference/")     # Cal's working directory (mac)
 # setwd("C:/Users/")     # Cal's working directory (PC)
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~
