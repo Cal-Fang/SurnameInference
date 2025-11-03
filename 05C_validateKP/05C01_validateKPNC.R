@@ -6,12 +6,15 @@
 #Libraries
 library(dplyr)
 library(haven)
+library(stringr)
+library(tidyr)
+library(ggplot2)
 
 #Datasets
 ##############################
 
 #Code highest probability ethnicity and second highest (with >20% probability)
-namelist = read.csv("~/goproject/projects/panache/data/surname_validation/probList.csv")
+namelist = read.csv("~/probList.csv")
 
 second_highest_value <- function(row) {
   sorted_values <- order(row, decreasing = TRUE)
@@ -31,10 +34,20 @@ names = namelist %>%
 
 
 #Surnames in this cohort are stripped of white space and in all caps
-cohort = read_sas("~/goproject/projects/panache/data/surname_validation/surname_cohort_final.sas7bdat")
+cohort = read_sas("~/surname_cohort_final.sas7bdat")
+
+cohort = mutate(cohort,
+                      age_c = factor(case_when(
+                        age < 40 ~ 1,
+                        age >= 40 & age < 60 ~ 2,
+                        age >=60 ~ 3
+                      ),levels = c(1,2,3), labels = c("<40","40-59","60+")))
+
 
 #Re-run with sex filters for stratified performance estimates
 #cohort = filter(cohort, SEX_ADMIN == 'M')
+#cohort = filter(cohort, age_c == "60+")
+
 
 #Exclude multi-ethnic Asian and Unknown asian from specific ethnicity denominator
 cohort_known = filter(cohort, !origin %in% c('MA','UA'))
@@ -86,7 +99,7 @@ for (orig in origins) {
   results = rbind(results, c(orig, perf(df, 'ind', 'surname_match')))
 }
 
-write.csv(results,"~/goproject/projects/panache/data/surname_validation/Results_best_ethnicity.csv")
+write.csv(results,"~/Results_best_ethnicity.csv")
 
 # Calculate performance using highest ethnicity or second highest ethnicity with >20% probability
 ##############################
@@ -110,11 +123,79 @@ for (orig in origins) {
   results2 = rbind(results2, c(orig, perf(df, 'ind', 'surname_match')))
 }
 
-write.csv(results2, "~/goproject/projects/panache/data/surname_validation/Results_2ndbest_ethnicity.csv")
+write.csv(results2, "~/Results_2ndbest_ethnicity.csv")
 
 #Unique surnames/people
 # cohort_known %>%
 #   filter(!surname %in% names$surname & any_asian==1) %>%
 #   summarise(unique_people = n_distinct(MRN),
 #             unique_surnames = n_distinct(surname))
+
+
+#Additional Validation - 10/27/2025
+######################################################
+
+# Analysis 1- plot probability density by ethnicity
+cohort = read_sas("~/surname_cohort_final.sas7bdat")
+cohort_known = filter(cohort, !origin %in% c('MA','UA','NA'))
+
+df = cohort_known %>% left_join(names,by="surname")
+
+origins = c('AF', 'SAS', 'BIA', 'CB', 'JA', 'XK', 'LA', 'MY', 'BM', 'NP', 'GCA', 'RP', 'SN', 'CE', 'TH', 'VM')
+labels = c("Afghanistan", 
+           "Bangladesh, India, Pakistan,\nSikkim, British India",
+           "Indonesia",
+           "Cambodia",
+           "Japan,\nSouthern Ryukyu Islands",
+           "Korea, Democratic People’s\nRepublic of Korea,\nRepublic of Korea",
+           "Laos",
+           "Malaysia",
+           "Myanmar",
+           "Nepal",
+           "People's Republic of China,\nHong Kong, Macau (Macao),\nTaiwan",
+           "Philippines",
+           "Singapore",
+           "Sri Lanka",
+           "Thailand",
+           "Vietnam, Democratic Republic\nof Vietnam, Republic\nof Vietnam")
+
+df_long <- df %>%
+  pivot_longer(cols = all_of(origins), 
+               names_to = "ancestry",
+               values_to = "value") %>%
+  filter(ancestry == origin) %>%
+  mutate(origin = factor(origin, levels = origins, labels = labels))
+
+# Density plot faceted by the individual's origin
+ggplot(df_long, aes(x = value)) +
+  geom_density(fill = "steelblue", alpha = 0.4) +
+  facet_wrap(~ origin, scales = "free_y", ncol = 4, nrow = 4) +
+  labs(y="Density", x="Probability") + 
+  scale_x_continuous(expand=c(0,0)) +
+  scale_y_continuous(expand=expansion(mult=c(0,0.1)))+
+  theme_bw()
+
+ggsave("~/density_plot.png",height=8,width=10,units="in",dpi=600)
+
+
+#Calibration table
+
+x = as.data.frame(prop.table(table(df$origin))) %>%
+  mutate(Var1 = factor(Var1, levels=origins, labels=labels))
+
+df_long <- df %>%
+  pivot_longer(cols = all_of(origins), 
+               names_to = "ancestry",
+               values_to = "value") %>%
+  mutate(origin = factor(origin, levels = origins, labels = labels))
+
+y = df_long %>% 
+  group_by(ancestry) %>%
+  summarize(mean = mean(value,na.rm=T)) %>%
+  mutate(Var1 = factor(ancestry,levels=origins,labels=labels))
+
+table = left_join(x,y,by="Var1")
+colnames(table) = c("Ethnicity","KP_freq","origin","ProbList_Freq")
+
+write.csv(table, "~/Overall_calibration.csv")
 
