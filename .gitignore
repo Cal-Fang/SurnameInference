@@ -64,3 +64,6 @@ data/
 # Strange mac document file
 .DS_Store
 
+# Track the two output lists
+!results/determList.csv
+!results/probList.csv
