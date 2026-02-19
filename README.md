@@ -1,2 +1,4 @@
 # Name-Method-Project
-This is a project trying to develop a complicate bayesian method to predict ethnicity information with surnames.
+This project presents a Bayesian framework for surname-based ethnicity inference.
+
+The final products are stored in the [result folder](results).
