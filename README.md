@@ -6,3 +6,5 @@ The final products are:
 2. a probabilistic surname–ethnicity distribution dataset.
 
 Both are stored in the [result folder](results).
+
+The paper for this project has been accepted at Demography.
